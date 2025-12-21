@@ -1,0 +1,929 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0b1220">
+<title>K Swipe — Levels</title>
+
+<style>
+  :root{
+    --bg1:#0b1220; --bg2:#13285a;
+    --card:#ffffff; --text:#0f172a; --muted:#64748b;
+    --high:#dc2626; --mod:#f59e0b; --low:#16a34a;
+    --shadow:0 18px 55px rgba(0,0,0,.35);
+    --radius:28px;
+  }
+
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+
+  body{
+    margin:0;
+    background: radial-gradient(1200px 800px at 10% 20%, #1a2b5a 0%, transparent 50%),
+                radial-gradient(1000px 700px at 90% 30%, #233c7a 0%, transparent 55%),
+                linear-gradient(135deg,var(--bg1),var(--bg2));
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color:#e5e7eb;
+    overflow:hidden;
+  }
+
+  .shell{
+    position:fixed;
+    inset:0;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    display:flex;
+    justify-content:center;
+    align-items:stretch;
+  }
+
+  .app{
+    width: min(500px, 100%);
+    height: 100dvh;
+    display:flex;
+    flex-direction:column;
+    padding: 14px 14px 16px;
+    gap: 10px;
+  }
+
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    padding-top: 6px;
+  }
+
+  .brand{
+    display:flex; gap:10px; align-items:center;
+  }
+
+  .logo{
+    width:40px; height:40px; border-radius:14px;
+    background: linear-gradient(135deg,#60a5fa,#a78bfa);
+    display:grid; place-items:center;
+    font-weight:1000;
+    box-shadow: 0 10px 30px rgba(96,165,250,.22);
+  }
+
+  .title h1{ margin:0; font-size:18px; }
+  .title p{ margin:2px 0 0; font-size:12px; color:#94a3b8; }
+
+  .hud{
+    text-align:right;
+    font-size:12px;
+    color:#cbd5f5;
+    line-height:1.35;
+  }
+  .hud b{ color:#fff; }
+
+  .topBars{
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+
+  .progress{
+    flex:1;
+    height:10px;
+    background: rgba(255,255,255,.12);
+    border-radius:999px;
+    overflow:hidden;
+    border: 1px solid rgba(148,163,184,.16);
+  }
+  .progress > div{
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg, rgba(96,165,250,.95), rgba(167,139,250,.95));
+    border-radius:999px;
+    transition: width .25s ease;
+  }
+
+  .streakPill{
+    font-size:12px;
+    padding:7px 10px;
+    border-radius:999px;
+    border:1px solid rgba(148,163,184,.18);
+    background: rgba(2,6,23,.35);
+    color:#e5e7eb;
+    white-space:nowrap;
+  }
+
+  .stack{
+    position:relative;
+    flex: 1;
+    min-height: 320px;
+  }
+
+  .card{
+    position:absolute;
+    inset:0;
+    background: var(--card);
+    color: var(--text);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    transition: transform .25s ease, opacity .25s ease;
+    touch-action:none;
+    overflow:hidden;
+  }
+
+  .badgeRow{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+  }
+  .pill{
+    font-size:11px;
+    padding:6px 10px;
+    border-radius:999px;
+    background:#eef2ff;
+    color:#3730a3;
+    font-weight:900;
+  }
+  .pill2{
+    background:#f1f5f9;
+    color:#0f172a;
+  }
+
+  .content{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    padding: 4px 0;
+  }
+
+  /* Sprite tile */
+  .foodImg{
+    width: 150px;
+    height: 150px;
+    border-radius: 26px;
+    background-image: url("images/foods-sprite.png");
+    background-size: 400% 300%;
+    background-position: calc(var(--x) * 100%) calc(var(--y) * 100%);
+    box-shadow: 0 12px 26px rgba(15,23,42,.15);
+    background-color:#f8fafc;
+  }
+
+  /* Emoji tile fallback */
+  .emojiTile{
+    width:150px; height:150px;
+    border-radius:26px;
+    background:#f8fafc;
+    box-shadow: 0 12px 26px rgba(15,23,42,.15);
+    display:grid; place-items:center;
+    font-size:70px;
+  }
+
+  .name{
+    font-size: 26px;
+    font-weight: 1000;
+    letter-spacing:-.02em;
+    text-align:center;
+    margin-top:2px;
+  }
+  .prompt{
+    font-size:14px;
+    color:#475569;
+    text-align:center;
+    max-width: 360px;
+  }
+
+  .mealList{
+    width:100%;
+    margin-top:6px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    max-width: 410px;
+  }
+  .mealItem{
+    background:#f1f5f9;
+    color:#0f172a;
+    border-radius: 14px;
+    padding:10px 12px;
+    font-size:14px;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .mealItem small{ color:#64748b; }
+
+  /* Swipe overlays */
+  .overlay{
+    position:absolute;
+    top:14px;
+    padding:10px 14px;
+    border-radius:16px;
+    font-weight:1000;
+    letter-spacing:.02em;
+    opacity:0;
+    transform: scale(.98);
+    transition: opacity .12s ease, transform .12s ease;
+    pointer-events:none;
+  }
+  .overlay.left{
+    left:14px;
+    background: rgba(220,38,38,.12);
+    border:1px solid rgba(220,38,38,.28);
+    color:#fecaca;
+  }
+  .overlay.up{
+    left:50%;
+    transform: translateX(-50%) scale(.98);
+    background: rgba(245,158,11,.12);
+    border:1px solid rgba(245,158,11,.28);
+    color:#fde68a;
+  }
+  .overlay.right{
+    right:14px;
+    background: rgba(22,163,74,.12);
+    border:1px solid rgba(22,163,74,.28);
+    color:#bbf7d0;
+  }
+
+  .controls{
+    display:flex;
+    gap:10px;
+  }
+  button{
+    flex:1;
+    border:0;
+    border-radius:999px;
+    padding: 14px 10px;
+    font-weight:1000;
+    font-size:14px;
+    cursor:pointer;
+    transition: transform .08s ease;
+  }
+  button:active{ transform: scale(.98); }
+
+  .btnHigh{ background: rgba(220,38,38,.14); color:#fecaca; border:1px solid rgba(220,38,38,.28) }
+  .btnMod { background: rgba(245,158,11,.14); color:#fde68a; border:1px solid rgba(245,158,11,.28) }
+  .btnLow { background: rgba(22,163,74,.14); color:#bbf7d0; border:1px solid rgba(22,163,74,.28) }
+  .btnHigh span,.btnMod span,.btnLow span{ color:#fff; }
+
+  .toast{
+    background: rgba(2,6,23,.55);
+    border:1px solid rgba(148,163,184,.18);
+    padding: 12px 14px;
+    border-radius: 18px;
+    font-size:13px;
+    line-height:1.35;
+    min-height: 54px;
+  }
+  .toast.good{ border-color: rgba(34,197,94,.35); }
+  .toast.bad { border-color: rgba(239,68,68,.35); }
+  .toast b{ color:#fff; }
+
+  .footer{
+    font-size:11px;
+    color:#93a3b8;
+    text-align:center;
+    padding-bottom: 4px;
+  }
+
+  .modal{
+    position:absolute;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding: 16px;
+    background: rgba(0,0,0,.45);
+  }
+  .panel{
+    width: min(480px, 100%);
+    background: rgba(255,255,255,.10);
+    border: 1px solid rgba(148,163,184,.18);
+    box-shadow: var(--shadow);
+    border-radius: 24px;
+    padding: 16px;
+    text-align:center;
+    color:#e5e7eb;
+  }
+  .panel h2{ margin:0 0 6px; font-size:20px; }
+  .panel p{ margin:6px 0; color:#cbd5f5; font-size:13px; line-height:1.35; }
+  .panel .big{
+    font-size:34px;
+    font-weight:1000;
+    margin: 6px 0 8px;
+  }
+  .panel .btnRow{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+  }
+  .panel .btnRow button{
+    background: rgba(96,165,250,.92);
+    color:#0b1220;
+    border:0;
+  }
+
+  /* tiny celebration confetti (emoji float) */
+  .confetti{
+    position:fixed;
+    left:0; top:0;
+    width:100%; height:100%;
+    pointer-events:none;
+    overflow:hidden;
+  }
+  .conf{
+    position:absolute;
+    font-size:24px;
+    opacity:.95;
+    animation: fall 900ms ease-out forwards;
+    filter: drop-shadow(0 8px 8px rgba(0,0,0,.22));
+  }
+  @keyframes fall{
+    from { transform: translateY(-20px) rotate(0deg); opacity: 0; }
+    20% { opacity: 1; }
+    to { transform: translateY(260px) rotate(220deg); opacity: 0; }
+  }
+</style>
+</head>
+
+<body>
+<div class="shell">
+  <div class="app">
+
+    <header>
+      <div class="brand">
+        <div class="logo">K+</div>
+        <div class="title">
+          <h1>K Swipe: 5 Levels</h1>
+          <p>10 swipes per level • Need 8/10 to level up</p>
+        </div>
+      </div>
+      <div class="hud">
+        Level <b id="level">1</b>/5<br/>
+        Card <b id="cardN">1</b>/10<br/>
+        Correct <b id="correctN">0</b>/10
+      </div>
+    </header>
+
+    <div class="topBars">
+      <div class="progress"><div id="prog"></div></div>
+      <div class="streakPill">Streak: <b id="streak">0</b> 🔥</div>
+    </div>
+
+    <div class="stack" id="stack"></div>
+
+    <div class="controls" id="controls">
+      <button class="btnHigh" id="highBtn">⬅ <span>High</span><br/>Limit</button>
+      <button class="btnMod" id="modBtn">⬆ <span>Moderate</span><br/>Portion</button>
+      <button class="btnLow" id="lowBtn"><span>Low</span> ➡<br/>Safer</button>
+    </div>
+
+    <div class="toast" id="toast" style="display:none;"></div>
+
+    <div class="footer">
+      Learning tool only. Potassium goals depend on labs, CKD stage, dialysis, meds.
+    </div>
+
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="panel" id="panel"></div>
+</div>
+
+<div class="confetti" id="confetti"></div>
+
+<script>
+/* ---------- SPRITE DETECTION (fixes "some images didn't load") ---------- */
+const SPRITE_URL = "images/foods-sprite.png";
+let spriteAvailable = false;
+
+function checkSprite(){
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => { spriteAvailable = true; resolve(true); };
+    img.onerror = () => { spriteAvailable = false; resolve(false); };
+    // Cache-bust so hosting changes show up immediately
+    img.src = SPRITE_URL + "?v=" + Date.now();
+  });
+}
+
+/* ---------- SPRITES: coords in your 4x3 grid ---------- */
+const SPRITES = {
+  banana:      {x:0, y:0, label:"Banana"},
+  avocado:     {x:1, y:0, label:"Avocado"},
+  potato:      {x:2, y:0, label:"Potato"},
+  tomatoSauce: {x:3, y:0, label:"Tomato Sauce"},
+  broccoli:    {x:0, y:1, label:"Broccoli"},
+  beans:       {x:1, y:1, label:"Beans"},
+  dairy:       {x:2, y:1, label:"Milk/Yogurt"},
+  cucumber:    {x:3, y:1, label:"Cucumber"},
+  apple:       {x:0, y:2, label:"Apple"},
+  blueberries: {x:1, y:2, label:"Blueberries"},
+  grapes:      {x:2, y:2, label:"Grapes"},
+  cucumber2:   {x:3, y:2, label:"Cucumber (alt)"}
+};
+
+/* ---------- FOODS: lots more options ---------- */
+const FOODS = [
+  // Sprite-backed (if available)
+  { key:"banana",      cat:"high", teach:"Bananas are usually high potassium." },
+  { key:"avocado",     cat:"high", teach:"Avocados are very high potassium." },
+  { key:"potato",      cat:"high", teach:"Potatoes are high unless boiled & drained (leached)." },
+  { key:"tomatoSauce", cat:"high", teach:"Tomato sauce is concentrated → often high potassium." },
+  { key:"broccoli",    cat:"mod",  teach:"Broccoli is often moderate; portion matters." },
+  { key:"beans",       cat:"mod",  teach:"Beans can be moderate→high; portion matters a lot." },
+  { key:"dairy",       cat:"mod",  teach:"Dairy is often moderate potassium (and phosphorus too)." },
+  { key:"cucumber",    cat:"low",  teach:"Cucumber is usually low potassium." },
+  { key:"apple",       cat:"low",  teach:"Apples are generally low potassium." },
+  { key:"blueberries", cat:"low",  teach:"Blueberries are low potassium—nice pick." },
+  { key:"grapes",      cat:"low",  teach:"Grapes are low potassium in usual servings." },
+
+  // Emoji-only variety
+  { name:"Orange Juice", emoji:"🧃", cat:"high", teach:"Juice can raise potassium quickly." },
+  { name:"Orange", emoji:"🍊", cat:"high", teach:"Oranges/juice are often high potassium." },
+  { name:"Coconut Water", emoji:"🥥", cat:"high", teach:"Coconut water is often a potassium bomb." },
+  { name:"Spinach (cooked)", emoji:"🥬", cat:"high", teach:"Cooked greens concentrate potassium." },
+  { name:"Sweet Potato", emoji:"🍠", cat:"high", teach:"Sweet potatoes are often high potassium." },
+  { name:"Dried Fruit", emoji:"🍑", cat:"high", teach:"Dried fruit concentrates potassium." },
+  { name:"Fries", emoji:"🍟", cat:"high", teach:"Potato + big portions → usually high potassium." },
+
+  { name:"Kiwi", emoji:"🥝", cat:"mod", teach:"Often moderate potassium; portion matters." },
+  { name:"Watermelon", emoji:"🍉", cat:"mod", teach:"Often moderate; keep portions reasonable." },
+  { name:"Tomato (fresh)", emoji:"🍅", cat:"mod", teach:"Fresh tomato can be moderate; sauce is higher." },
+  { name:"Carrots (cooked)", emoji:"🥕", cat:"mod", teach:"Often moderate; portion matters." },
+  { name:"Canned Soup", emoji:"🥫", cat:"mod", teach:"Potassium varies; labels + portions matter." },
+
+  { name:"Strawberries", emoji:"🍓", cat:"low", teach:"Many berries are low potassium." },
+  { name:"Pineapple", emoji:"🍍", cat:"low", teach:"Pineapple tends to be lower potassium." },
+  { name:"Lettuce Salad", emoji:"🥗", cat:"low", teach:"Lettuce is low potassium." },
+  { name:"White Rice", emoji:"🍚", cat:"low", teach:"Plain white rice is typically low potassium." },
+  { name:"Pasta (plain)", emoji:"🍝", cat:"low", teach:"Plain pasta is usually low potassium (watch sauce)." },
+  { name:"Bread", emoji:"🍞", cat:"low", teach:"Most breads are low potassium per slice." },
+  { name:"Tea/coffee (plain)", emoji:"☕️", cat:"low", teach:"Plain tea/coffee is low potassium." },
+  { name:"Water", emoji:"💧", cat:"low", teach:"Water is always a safe drink choice." }
+];
+
+/* ---------- DINNER PLATES: richer, frequent, and fun ---------- */
+const MEAL_PARTS = {
+  protein: [
+    {t:"Chicken 🍗", k:"mod"}, {t:"Fish 🐟", k:"low"}, {t:"Eggs 🍳", k:"low"},
+    {t:"Turkey 🦃", k:"mod"}, {t:"Tofu 🧈", k:"mod"}, {t:"Beans 🫘", k:"high"}
+  ],
+  carb: [
+    {t:"White rice 🍚", k:"low"}, {t:"Pasta (plain) 🍝", k:"low"},
+    {t:"Bread roll 🍞", k:"low"}, {t:"Baked potato 🥔", k:"high"},
+    {t:"Sweet potato 🍠", k:"high"}, {t:"Fries 🍟", k:"high"}
+  ],
+  veg: [
+    {t:"Lettuce salad 🥗", k:"low"}, {t:"Cucumber 🥒", k:"low"},
+    {t:"Broccoli 🥦", k:"mod"}, {t:"Carrots 🥕", k:"mod"},
+    {t:"Spinach (cooked) 🥬", k:"high"}
+  ],
+  sauce: [
+    {t:"No sauce ✅", k:"low"},
+    {t:"Tomato sauce 🍅", k:"high"},
+    {t:"Cream sauce 🥛", k:"mod"}
+  ],
+  drink: [
+    {t:"Water 💧", k:"low"}, {t:"Tea ☕️", k:"low"},
+    {t:"Orange juice 🧃", k:"high"}, {t:"Coconut water 🥥", k:"high"}
+  ],
+  dessert: [
+    {t:"Berries 🫐", k:"low"}, {t:"Apple 🍎", k:"low"}, {t:"Grapes 🍇", k:"low"},
+    {t:"Dried fruit 🍑", k:"high"}
+  ]
+};
+
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function mealScore(parts){
+  // Convert k labels into numeric “push”
+  const map = { low:0, mod:1, high:2 };
+  const total = parts.reduce((s,p)=>s+map[p.k],0);
+  // Thresholds tuned for “plate feel”
+  if (total <= 3) return "low";
+  if (total <= 6) return "mod";
+  return "high";
+}
+
+function makeDinnerPlate(){
+  // Generate a fun plate title + components
+  const themes = [
+    {name:"BBQ Night", emoji:"🍽️"},
+    {name:"Quick Lunch Plate", emoji:"🍽️"},
+    {name:"Comfort Dinner", emoji:"🍽️"},
+    {name:"Restaurant Combo", emoji:"🍽️"},
+    {name:"Home Cooked Plate", emoji:"🍽️"},
+  ];
+
+  const parts = [
+    pick(MEAL_PARTS.protein),
+    pick(MEAL_PARTS.carb),
+    pick(MEAL_PARTS.veg),
+    pick(MEAL_PARTS.sauce),
+    pick(MEAL_PARTS.drink),
+    pick(MEAL_PARTS.dessert),
+  ];
+
+  const cat = mealScore(parts);
+
+  const teach =
+    (cat==="low")
+      ? "This plate is mostly lower-potassium choices. Still: portions matter (always)."
+      : (cat==="mod")
+        ? "This plate is moderate potassium—portion size and prep matter."
+        : "This plate stacks high-potassium choices (classic triggers: potato + sauce + juice + dried fruit).";
+
+  const t = pick(themes);
+
+  return {
+    type:"meal",
+    name: t.name,
+    emoji: t.emoji,
+    cat,
+    teach,
+    parts
+  };
+}
+
+/* ---------- LEVEL SYSTEM: 5 levels, 10 cards each (7 foods + 3 plates) ---------- */
+const MAX_LEVEL = 5;
+let level = 1;
+
+let round = [];      // length 10
+let idx = 0;         // current card 0..9
+let correct = 0;     // correct out of 10
+let streak = 0;
+let busy = false;
+
+/* ---------- UI ---------- */
+const stackEl = document.getElementById("stack");
+const toastEl = document.getElementById("toast");
+const levelEl = document.getElementById("level");
+const cardNEl = document.getElementById("cardN");
+const correctEl = document.getElementById("correctN");
+const streakEl = document.getElementById("streak");
+const progEl = document.getElementById("prog");
+
+const modal = document.getElementById("modal");
+const panel = document.getElementById("panel");
+const confetti = document.getElementById("confetti");
+
+document.getElementById("highBtn").addEventListener("click", ()=>answer("high"));
+document.getElementById("modBtn").addEventListener("click", ()=>answer("mod"));
+document.getElementById("lowBtn").addEventListener("click", ()=>answer("low"));
+
+function shuffle(a){
+  const arr = [...a];
+  for (let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function buildRound(){
+  // Pick 7 foods (no repeats inside this round)
+  const foods = shuffle(FOODS).slice(0,7).map(f => ({type:"food", ...f}));
+  // Pick 3 dinner plates
+  const plates = Array.from({length:3}, ()=>makeDinnerPlate());
+  // Combine and shuffle
+  return shuffle([...foods, ...plates]);
+}
+
+function hudUpdate(){
+  levelEl.textContent = level;
+  cardNEl.textContent = (idx+1);
+  correctEl.textContent = correct;
+  streakEl.textContent = streak;
+  progEl.style.width = Math.round((idx/10)*100) + "%";
+}
+
+function funCorrectLine(){
+  const lines = [
+    "Your kidneys just did a tiny victory dance. 💃🕺",
+    "That was clinically correct *and* emotionally satisfying. ✅",
+    "Potassium? Denied. Security escorting it out. 👮‍♂️",
+    "Big brain move. 🧠✨",
+    "Look at you… reading the potassium room like a pro. 😎",
+    "Dialysis machine: “not today.” 🛑",
+  ];
+  // streak spice
+  if (streak >= 3) lines.push("Combo streak! You’re on FIRE. 🔥🔥🔥");
+  if (streak >= 6) lines.push("This streak is illegal in 12 states. 🚓 (kidding)");
+  return lines[Math.floor(Math.random()*lines.length)];
+}
+
+function funWrongLine(){
+  const lines = [
+    "Oof. Potassium was hiding in the bushes. 🥷",
+    "Not quite — that one’s sneaky. No shame.",
+    "Your kidneys just raised an eyebrow. 🤨",
+    "Plot twist: potassium strikes back. ⚡️",
+    "That answer was… brave. 💀 (but we learn!)",
+    "It happens. This is why food labels exist. 📦",
+  ];
+  return lines[Math.floor(Math.random()*lines.length)];
+}
+
+function showToast(ok, teach){
+  toastEl.style.display = "block";
+  toastEl.className = "toast " + (ok ? "good" : "bad");
+  toastEl.innerHTML =
+    (ok ? "<b>✅ Correct.</b> " : "<b>❌ Not quite.</b> ")
+    + teach + " <span style='color:#cbd5e1'>(" + (ok?funCorrectLine():funWrongLine()) + ")</span>";
+}
+
+function makeConfettiBurst(){
+  const emojis = ["✨","🎉","⭐️","💥","👏","🫶","🏆"];
+  for (let i=0;i<14;i++){
+    const d = document.createElement("div");
+    d.className = "conf";
+    d.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    d.style.left = (10 + Math.random()*80) + "%";
+    d.style.top = (10 + Math.random()*15) + "%";
+    d.style.animationDelay = (Math.random()*120) + "ms";
+    confetti.appendChild(d);
+    setTimeout(()=>d.remove(), 1000);
+  }
+}
+
+function renderCard(){
+  stackEl.innerHTML = "";
+  toastEl.style.display = "none";
+
+  const c = round[idx];
+  hudUpdate();
+
+  const card = document.createElement("div");
+  card.className = "card";
+
+  const overlays = `
+    <div class="overlay left" id="ovLeft">HIGH</div>
+    <div class="overlay up" id="ovUp">MODERATE</div>
+    <div class="overlay right" id="ovRight">LOW</div>
+  `;
+
+  const top = `
+    <div class="badgeRow">
+      <div class="pill">Level ${level} • Card ${idx+1}/10</div>
+      <div class="pill pill2">${c.type === "meal" ? "Dinner Plate" : "Food"}</div>
+    </div>
+  `;
+
+  // Media: sprite tile if possible, else emoji tile
+  let media = "";
+  if (c.type === "food" && c.key && SPRITES[c.key] && spriteAvailable){
+    const s = SPRITES[c.key];
+    media = `<div class="foodImg" style="--x:${s.x};--y:${s.y}"></div>`;
+  } else {
+    const emoji = (c.type==="meal") ? (c.emoji || "🍽️") : (c.emoji || "🍴");
+    media = `<div class="emojiTile">${emoji}</div>`;
+  }
+
+  const name = (c.type==="meal")
+    ? c.name
+    : (c.name || (SPRITES[c.key]?.label ?? "Food"));
+
+  const prompt = (c.type==="meal")
+    ? "Overall, is this plate high, moderate, or low potassium?"
+    : "Is this item high, moderate, or low potassium?";
+
+  let mid = `
+    <div class="content">
+      ${media}
+      <div class="name">${name}</div>
+      <div class="prompt">${prompt}</div>
+    </div>
+  `;
+
+  if (c.type==="meal"){
+    const list = c.parts.map(p => `<div class="mealItem"><span>${p.t}</span><small>${p.k}</small></div>`).join("");
+    mid += `<div class="mealList">${list}</div>`;
+  }
+
+  const hint = `
+    <div style="font-size:12px;color:#64748b;text-align:center;">
+      Pro tip: potato + tomato sauce + juice + dried fruit = potassium party (and you weren’t invited).
+    </div>
+  `;
+
+  card.innerHTML = overlays + top + mid + hint;
+  stackEl.appendChild(card);
+
+  enableSwipe(card);
+}
+
+function answer(choice){
+  if (busy) return;
+  busy = true;
+
+  const c = round[idx];
+  const ok = (choice === c.cat);
+
+  if (ok){ correct += 1; streak += 1; }
+  else { streak = 0; }
+
+  showToast(ok, c.teach);
+
+  // animate out direction
+  const card = stackEl.querySelector(".card");
+  if (card){
+    if (choice === "high") card.style.transform = "translateX(-160%) rotate(-12deg)";
+    if (choice === "low")  card.style.transform = "translateX(160%) rotate(12deg)";
+    if (choice === "mod")  card.style.transform = "translateY(-160%) rotate(0deg)";
+    card.style.opacity = "0";
+  }
+
+  if (ok && (streak === 3 || streak === 5 || streak === 8)){
+    makeConfettiBurst();
+  }
+
+  setTimeout(()=>{
+    idx += 1;
+    busy = false;
+
+    if (idx >= 10){
+      endOfLevel();
+    } else {
+      renderCard();
+    }
+  }, 520);
+}
+
+function endOfLevel(){
+  const passed = (correct >= 8);
+
+  const msgPass = [
+    "You leveled up. Potassium fears you now. 😤",
+    "8/10 or better? That’s kidney-diet legend behavior. 🏆",
+    "Elite work. If foods had a courtroom, you’d be the judge. ⚖️",
+  ];
+  const msgFail = [
+    "Close! Repeat the level and absolutely bully these foods. 😈",
+    "Not quite 8/10 — but you’re learning fast. Run it back. 🔁",
+    "The foods got lucky. Try again and reclaim your dignity. 😄",
+  ];
+
+  panel.innerHTML = `
+    <h2>${passed ? "LEVEL CLEARED ✅" : "LEVEL NOT CLEARED 🧠"}</h2>
+    <div class="big">${correct}/10</div>
+    <p>${passed ? msgPass[Math.floor(Math.random()*msgPass.length)]
+                : msgFail[Math.floor(Math.random()*msgFail.length)]}</p>
+    <p style="color:#cbd5f5;">
+      Rule: get <b>8 out of 10</b> correct to level up.
+      You got <b>${correct}</b>.
+    </p>
+    <div class="btnRow">
+      <button id="nextBtn">${passed ? (level < MAX_LEVEL ? "Next Level" : "Finish") : "Try Again"}</button>
+      <button id="resetBtn" style="background:rgba(148,163,184,.22);color:#e5e7eb;">Reset Game</button>
+    </div>
+  `;
+  modal.style.display = "flex";
+
+  document.getElementById("nextBtn").onclick = () => {
+    modal.style.display = "none";
+    if (passed){
+      if (level < MAX_LEVEL){
+        level += 1;
+        startLevel();
+      } else {
+        showWinScreen();
+      }
+    } else {
+      startLevel(); // repeat same level
+    }
+  };
+
+  document.getElementById("resetBtn").onclick = () => {
+    modal.style.display = "none";
+    level = 1;
+    startLevel();
+  };
+
+  if (passed) makeConfettiBurst();
+}
+
+function showWinScreen(){
+  panel.innerHTML = `
+    <h2>YOU BEAT ALL 5 LEVELS 🏆</h2>
+    <div class="big">Kidney Diet Boss</div>
+    <p>You just cleared 50 decisions like a champ.</p>
+    <p style="color:#cbd5f5;">
+      Takeaway: “High potassium” often hides in potatoes, tomato sauces, juices, dried fruit,
+      and big portions of beans/greens. “Moderate” is portion + prep territory.
+    </p>
+    <div class="btnRow">
+      <button id="playAgainBtn">Play Again</button>
+      <button id="closeBtn" style="background:rgba(148,163,184,.22);color:#e5e7eb;">Close</button>
+    </div>
+  `;
+  modal.style.display = "flex";
+  makeConfettiBurst();
+
+  document.getElementById("playAgainBtn").onclick = () => {
+    modal.style.display = "none";
+    level = 1;
+    startLevel();
+  };
+  document.getElementById("closeBtn").onclick = () => {
+    modal.style.display = "none";
+  };
+}
+
+function startLevel(){
+  // Reset per-level stats
+  round = buildRound(); // 7 foods + 3 plates
+  idx = 0;
+  correct = 0;
+  streak = 0;
+  progEl.style.width = "0%";
+  toastEl.style.display = "none";
+  renderCard();
+}
+
+function buildRound(){
+  // Pick 7 unique foods
+  const foods = shuffle(FOODS).slice(0,7).map(f => ({type:"food", ...f}));
+  // 3 dinner plates
+  const plates = Array.from({length:3}, ()=>makeDinnerPlate());
+  return shuffle([...foods, ...plates]);
+}
+
+function enableSwipe(card){
+  let startX=0, startY=0, dx=0, dy=0, dragging=false;
+
+  const ovLeft  = card.querySelector("#ovLeft");
+  const ovUp    = card.querySelector("#ovUp");
+  const ovRight = card.querySelector("#ovRight");
+
+  const onDown = (e) => {
+    if (busy) return;
+    dragging = true;
+    card.style.transition = "none";
+    startX = e.clientX; startY = e.clientY;
+    dx = 0; dy = 0;
+  };
+
+  const onMove = (e) => {
+    if (!dragging) return;
+    dx = e.clientX - startX;
+    dy = e.clientY - startY;
+
+    const rot = Math.max(-15, Math.min(15, dx / 18));
+    card.style.transform = `translateX(${dx}px) translateY(${dy}px) rotate(${rot}deg)`;
+
+    const ax = Math.abs(dx), ay = Math.abs(dy);
+    ovLeft.style.opacity = 0; ovUp.style.opacity = 0; ovRight.style.opacity = 0;
+
+    if (ax > ay){
+      const a = Math.min(1, ax / 120);
+      if (dx < 0){ ovLeft.style.opacity = a; ovLeft.style.transform = `scale(${0.98 + a*0.04})`; }
+      else { ovRight.style.opacity = a; ovRight.style.transform = `scale(${0.98 + a*0.04})`; }
+    } else {
+      if (dy < 0){
+        const a = Math.min(1, ay / 120);
+        ovUp.style.opacity = a;
+        ovUp.style.transform = `translateX(-50%) scale(${0.98 + a*0.04})`;
+      }
+    }
+  };
+
+  const onUp = () => {
+    if (!dragging) return;
+    dragging = false;
+    card.style.transition = "transform .25s ease, opacity .25s ease";
+
+    const ax = Math.abs(dx), ay = Math.abs(dy);
+    if (ax > ay && dx <= -110) answer("high");
+    else if (ax > ay && dx >= 110) answer("low");
+    else if (ay >= ax && dy <= -110) answer("mod");
+    else {
+      card.style.transform = "translateX(0) translateY(0) rotate(0deg)";
+      ovLeft.style.opacity = 0; ovUp.style.opacity = 0; ovRight.style.opacity = 0;
+    }
+  };
+
+  card.addEventListener("pointerdown", onDown);
+  window.addEventListener("pointermove", onMove);
+  window.addEventListener("pointerup", onUp);
+}
+
+/* Prevent iOS gesture zoom weirdness */
+document.addEventListener("gesturestart", (e) => e.preventDefault());
+
+/* ---------- BOOT ---------- */
+(async function boot(){
+  await checkSprite();   // spriteAvailable becomes true/false
+  startLevel();
+})();
+</script>
+</body>
+</html>
+
