@@ -2,1061 +2,878 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="K Swipe">
 <meta name="theme-color" content="#0b1220">
-<title>K Swipe — Journey Mode</title>
-
+<meta name="description" content="K Swipe: a swipe game to learn which foods are high, moderate, or low in potassium.">
+<title>K Swipe: Potassium Journey</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
   :root{
-    --shadow:0 18px 55px rgba(0,0,0,.35);
-    --radius:28px;
-
-    --card:#ffffff;
-    --text:#0f172a;
-    --muted:#64748b;
-
-    --high:#dc2626;
-    --mod:#f59e0b;
-    --low:#16a34a;
-
-    --bgA:#0b1220;
-    --bgB:#14244b;
-    --accent1:#60a5fa;
-    --accent2:#a78bfa;
+    --shadow:0 1.1rem 3.4rem rgba(0,0,0,.35);
+    --radius:1.6rem;
+    --card:#ffffff; --text:#0f172a; --muted:#475569;
+    --high:#b91c1c; --mod:#92400e; --low:#15803d;
+    --highBg:#fee2e2; --modBg:#fef3c7; --lowBg:#dcfce7;
+    --bgA:#0b1220; --bgB:#14244b; --accent1:#60a5fa; --accent2:#a78bfa;
+    --ink:#f1f5f9; --ink2:#dbe4f5;
   }
-
   *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; }
-
+  html{ font-size:100%; }
+  html, body { height:100%; }
   body{
-    margin:0;
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    color:#e5e7eb;
-    overflow:hidden;
-    background: linear-gradient(135deg, var(--bgA), var(--bgB));
+    margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    color:var(--ink); background: linear-gradient(135deg, var(--bgA), var(--bgB));
     transition: background 450ms ease;
   }
-
-  /* Fullscreen shell (iPhone safe areas) */
   .shell{
-    position:fixed;
-    inset:0;
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-    display:flex;
-    justify-content:center;
-    align-items:stretch;
+    min-height:100dvh;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    display:flex; justify-content:center;
   }
+  .app{ width:min(32.5rem,100%); min-height:100dvh; display:flex; flex-direction:column; padding:.875rem .875rem 1rem; gap:.625rem; }
+  [hidden]{ display:none !important; }
+  .screen{ display:flex; flex-direction:column; gap:.75rem; flex:1; }
+  :focus-visible{ outline:3px solid #fbbf24; outline-offset:2px; }
+  h2[tabindex="-1"]:focus{ outline:none; }
+  .sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 
-  .app{
-    width: min(520px, 100%);
-    height: 100dvh;
-    display:flex;
-    flex-direction:column;
-    padding: 14px 14px 16px;
-    gap: 10px;
-  }
-
-  header{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    gap:10px;
-    padding-top: 6px;
-  }
-
-  .brand{
-    display:flex; gap:10px; align-items:center;
-  }
-
-  .logo{
-    width:42px; height:42px; border-radius:14px;
-    background: linear-gradient(135deg, var(--accent1), var(--accent2));
-    display:grid; place-items:center;
-    font-weight:1000;
-    box-shadow: 0 10px 30px rgba(96,165,250,.22);
-  }
-
-  .title h1{ margin:0; font-size:18px; }
-  .title p{ margin:2px 0 0; font-size:12px; color:#cbd5f5; opacity:.85; }
-
-  .hud{
-    text-align:right;
-    font-size:12px;
-    color:#cbd5f5;
-    line-height:1.35;
-  }
+  header{ display:flex; justify-content:space-between; align-items:flex-start; gap:.5rem; padding-top:.375rem; }
+  .brand{ display:flex; gap:.6rem; align-items:center; min-width:0; }
+  .logo{ flex:none; width:2.5rem; height:2.5rem; border-radius:.85rem; background:linear-gradient(135deg,var(--accent1),var(--accent2));
+         display:grid; place-items:center; font-weight:900; color:#0b1220; }
+  .title{ min-width:0; }
+  .title h1{ margin:0; font-size:1.125rem; white-space:nowrap; }
+  .title p{ margin:.1rem 0 0; font-size:.78rem; color:var(--ink2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hud{ text-align:right; font-size:.78rem; color:var(--ink2); line-height:1.35; flex:none; }
   .hud b{ color:#fff; }
+  .pillDark{ display:inline-flex; align-items:center; gap:.4rem; padding:.4rem .6rem; border-radius:999px;
+    border:1px solid rgba(203,213,225,.3); background:rgba(2,6,23,.45); color:var(--ink); font-size:.78rem; white-space:nowrap; }
+  .topBars{ display:flex; gap:.6rem; align-items:center; }
+  .progress{ flex:1; height:.625rem; background:rgba(255,255,255,.15); border-radius:999px; overflow:hidden; }
+  .progress > div{ height:100%; width:0%; background:linear-gradient(90deg,var(--accent1),var(--accent2)); border-radius:999px; transition:width .25s ease; }
+  .iconBtn{ flex:none; background:rgba(2,6,23,.45); color:var(--ink); border:1px solid rgba(203,213,225,.3); border-radius:999px; padding:.4rem .7rem; font-size:.8rem; font-weight:700; }
 
-  .rankPill{
-    margin-top:4px;
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding:7px 10px;
-    border-radius:999px;
-    border:1px solid rgba(148,163,184,.18);
-    background: rgba(2,6,23,.35);
-    color:#e5e7eb;
-    font-size:12px;
-    white-space:nowrap;
-  }
+  .stack{ position:relative; flex:1; min-height:24rem; }
+  .card{ position:absolute; inset:0; background:var(--card); color:var(--text); border-radius:var(--radius); box-shadow:var(--shadow);
+    padding:1rem; display:flex; flex-direction:column; gap:.5rem; transition:transform .25s ease, opacity .25s ease;
+    touch-action:none; overflow:auto; user-select:none; -webkit-user-select:none; }
+  .card.revealed{ touch-action:auto; cursor:pointer; }
+  .badgeRow{ display:flex; justify-content:space-between; align-items:center; gap:.6rem; }
+  .pill{ font-size:.72rem; padding:.35rem .6rem; border-radius:999px; background:#e0e7ff; color:#312e81; font-weight:800; }
+  .pill2{ background:#e2e8f0; color:#0f172a; }
+  .content{ display:flex; flex-direction:column; align-items:center; gap:.4rem; }
+  .emojiTile{ width:7.5rem; height:7.5rem; border-radius:1.5rem; background:#f1f5f9; box-shadow:0 .75rem 1.6rem rgba(15,23,42,.15);
+    display:grid; place-items:center; font-size:3.9rem; }
+  .name{ font-size:1.5rem; font-weight:900; letter-spacing:-.02em; text-align:center; }
+  .serving{ font-size:.9rem; color:var(--muted); font-weight:700; text-align:center; }
+  .prompt{ font-size:.9rem; color:var(--muted); text-align:center; max-width:23rem; }
+  .mealList{ width:100%; display:flex; flex-direction:column; gap:.35rem; }
+  .mealItem{ background:#f1f5f9; border-radius:.85rem; padding:.55rem .75rem; font-size:.9rem; display:flex; justify-content:space-between; gap:.6rem; }
+  .tag{ font-size:.75rem; font-weight:800; padding:.1rem .45rem; border-radius:999px; }
+  .tag.high{ background:var(--highBg); color:var(--high); } .tag.mod{ background:var(--modBg); color:var(--mod); } .tag.low{ background:var(--lowBg); color:var(--low); }
+  .compare{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; width:100%; }
+  .opt{ background:#f1f5f9; border-radius:1rem; padding:.75rem .5rem; text-align:center; border:3px solid transparent; }
+  .opt .e{ font-size:2.6rem; } .opt .n{ font-weight:800; font-size:.95rem; } .opt .s{ font-size:.8rem; color:var(--muted); }
+  .opt .mg{ font-size:.85rem; font-weight:800; margin-top:.3rem; }
+  .opt.win{ border-color:var(--low); background:var(--lowBg); }
+  .opt .letter{ font-size:.75rem; font-weight:900; color:#312e81; }
+  .verdict{ border-radius:1rem; padding:.6rem .8rem; text-align:center; font-weight:900; font-size:1.05rem; }
+  .verdict.high{ background:var(--highBg); color:var(--high); } .verdict.mod{ background:var(--modBg); color:var(--mod); } .verdict.low{ background:var(--lowBg); color:var(--low); }
+  .verdict small{ display:block; font-weight:700; font-size:.82rem; color:var(--text); margin-top:.15rem; }
+  .hint{ font-size:.78rem; color:var(--muted); text-align:center; margin-top:auto; }
+  .overlay{ position:absolute; top:.85rem; padding:.55rem .85rem; border-radius:1rem; font-weight:900; opacity:0; pointer-events:none; }
+  .overlay.left{ left:.85rem; background:var(--highBg); color:var(--high); border:2px solid var(--high); }
+  .overlay.up{ left:50%; transform:translateX(-50%); background:var(--modBg); color:var(--mod); border:2px solid var(--mod); }
+  .overlay.right{ right:.85rem; background:var(--lowBg); color:var(--low); border:2px solid var(--low); }
 
-  .topBars{
-    display:flex;
-    gap:10px;
-    align-items:center;
-  }
+  .controls{ display:flex; gap:.6rem; }
+  button{ font:inherit; cursor:pointer; }
+  .controls button, .bigBtn{ flex:1; border:0; border-radius:999px; padding:.8rem .5rem; font-weight:900; font-size:.9rem; line-height:1.2; transition:transform .08s ease; }
+  .controls button:active, .bigBtn:active{ transform:scale(.98); }
+  .controls button small{ display:block; font-weight:700; font-size:.72rem; opacity:.95; }
+  .controls button:disabled{ opacity:.45; cursor:default; }
+  .btnHigh{ background:var(--highBg); color:var(--high); } .btnMod{ background:var(--modBg); color:var(--mod); } .btnLow{ background:var(--lowBg); color:var(--low); }
+  .btnA{ background:#e0e7ff; color:#312e81; }
+  .bigBtn{ background:linear-gradient(135deg,var(--accent1),var(--accent2)); color:#0b1220; padding:.95rem; font-size:1rem; }
+  .bigBtn.secondary{ background:rgba(2,6,23,.45); color:var(--ink); border:1px solid rgba(203,213,225,.35); }
 
-  .progress{
-    flex:1;
-    height:10px;
-    background: rgba(255,255,255,.12);
-    border-radius:999px;
-    overflow:hidden;
-    border: 1px solid rgba(148,163,184,.16);
-  }
-  .progress > div{
-    height:100%;
-    width:0%;
-    background: linear-gradient(90deg, rgba(96,165,250,.95), rgba(167,139,250,.95));
-    border-radius:999px;
-    transition: width .25s ease;
-  }
+  .toast{ background:rgba(2,6,23,.7); border:2px solid rgba(203,213,225,.3); padding:.75rem .85rem; border-radius:1.1rem; font-size:.88rem; line-height:1.4; }
+  .toast.good{ border-color:#22c55e; } .toast.bad{ border-color:#f87171; }
+  .toast .coach{ margin-top:.35rem; color:var(--ink2); }
+  .toast .row{ display:flex; gap:.6rem; align-items:center; justify-content:space-between; margin-top:.6rem; }
+  .toast .tapnote{ font-size:.75rem; color:var(--ink2); }
+  .nextBtn{ border:0; border-radius:999px; padding:.65rem 1.4rem; font-weight:900; background:#f8fafc; color:#0b1220; }
+  .footer{ font-size:.75rem; color:var(--ink2); text-align:center; }
+  .footer a, .panelText a{ color:#bfdbfe; }
 
-  .streakPill{
-    font-size:12px;
-    padding:7px 10px;
-    border-radius:999px;
-    border:1px solid rgba(148,163,184,.18);
-    background: rgba(2,6,23,.35);
-    color:#e5e7eb;
-    white-space:nowrap;
-  }
-
-  .stack{
-    position:relative;
-    flex: 1;
-    min-height: 320px;
-  }
-
-  .card{
-    position:absolute;
-    inset:0;
-    background: var(--card);
-    color: var(--text);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 18px;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-    transition: transform .25s ease, opacity .25s ease;
-    touch-action:none;
-    overflow:hidden;
-  }
-
-  .badgeRow{
-    display:flex; justify-content:space-between; align-items:center; gap:10px;
-  }
-  .pill{
-    font-size:11px;
-    padding:6px 10px;
-    border-radius:999px;
-    background:#eef2ff;
-    color:#3730a3;
-    font-weight:900;
-  }
-  .pill2{
-    background:#f1f5f9;
-    color:#0f172a;
-  }
-
-  .content{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:8px;
-    padding: 4px 0;
-  }
-
-  /* Sprite tile */
-  .foodImg{
-    width: 150px;
-    height: 150px;
-    border-radius: 26px;
-    background-image: url("images/foods-sprite.png");
-    background-size: 400% 300%;
-    background-position: calc(var(--x) * 100%) calc(var(--y) * 100%);
-    box-shadow: 0 12px 26px rgba(15,23,42,.15);
-    background-color:#f8fafc;
-  }
-
-  /* Emoji tile fallback */
-  .emojiTile{
-    width:150px; height:150px;
-    border-radius:26px;
-    background:#f8fafc;
-    box-shadow: 0 12px 26px rgba(15,23,42,.15);
-    display:grid; place-items:center;
-    font-size:70px;
-  }
-
-  .name{
-    font-size: 26px;
-    font-weight: 1000;
-    letter-spacing:-.02em;
-    text-align:center;
-    margin-top:2px;
-  }
-  .prompt{
-    font-size:14px;
-    color:#475569;
-    text-align:center;
-    max-width: 380px;
-  }
-
-  .mealList{
-    width:100%;
-    margin-top:6px;
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-    max-width: 460px;
-  }
-  .mealItem{
-    background:#f1f5f9;
-    color:#0f172a;
-    border-radius: 14px;
-    padding:10px 12px;
-    font-size:14px;
-    display:flex;
-    justify-content:space-between;
-    gap:10px;
-  }
-  .mealItem small{ color:#64748b; }
-
-  /* Swipe overlays */
-  .overlay{
-    position:absolute;
-    top:14px;
-    padding:10px 14px;
-    border-radius:16px;
-    font-weight:1000;
-    letter-spacing:.02em;
-    opacity:0;
-    transform: scale(.98);
-    transition: opacity .12s ease, transform .12s ease;
-    pointer-events:none;
-  }
-  .overlay.left{
-    left:14px;
-    background: rgba(220,38,38,.12);
-    border:1px solid rgba(220,38,38,.28);
-    color:#fecaca;
-  }
-  .overlay.up{
-    left:50%;
-    transform: translateX(-50%) scale(.98);
-    background: rgba(245,158,11,.12);
-    border:1px solid rgba(245,158,11,.28);
-    color:#fde68a;
-  }
-  .overlay.right{
-    right:14px;
-    background: rgba(22,163,74,.12);
-    border:1px solid rgba(22,163,74,.28);
-    color:#bbf7d0;
-  }
-
-  .controls{
-    display:flex;
-    gap:10px;
-  }
-  button{
-    flex:1;
-    border:0;
-    border-radius:999px;
-    padding: 14px 10px;
-    font-weight:1000;
-    font-size:14px;
-    cursor:pointer;
-    transition: transform .08s ease;
-  }
-  button:active{ transform: scale(.98); }
-
-  .btnHigh{ background: rgba(220,38,38,.14); color:#fecaca; border:1px solid rgba(220,38,38,.28) }
-  .btnMod { background: rgba(245,158,11,.14); color:#fde68a; border:1px solid rgba(245,158,11,.28) }
-  .btnLow { background: rgba(22,163,74,.14); color:#bbf7d0; border:1px solid rgba(22,163,74,.28) }
-  .btnHigh span,.btnMod span,.btnLow span{ color:#fff; }
-
-  .toast{
-    background: rgba(2,6,23,.55);
-    border:1px solid rgba(148,163,184,.18);
-    padding: 12px 14px;
-    border-radius: 18px;
-    font-size:13px;
-    line-height:1.35;
-    min-height: 54px;
-  }
-  .toast.good{ border-color: rgba(34,197,94,.35); }
-  .toast.bad { border-color: rgba(239,68,68,.35); }
-  .toast b{ color:#fff; }
-
-  .footer{
-    font-size:11px;
-    color:#cbd5f5;
-    opacity:.75;
-    text-align:center;
-    padding-bottom: 4px;
-  }
-
-  /* Level-up modal */
-  .modal{
-    position:absolute;
-    inset:0;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding: 16px;
-    background: rgba(0,0,0,.55);
-  }
-  .panel{
-    width: min(520px, 100%);
-    border-radius: 24px;
-    padding: 16px;
-    text-align:center;
-    color:#e5e7eb;
-    box-shadow: var(--shadow);
-    border: 1px solid rgba(148,163,184,.18);
-    background:
-      radial-gradient(700px 320px at 20% 10%, rgba(96,165,250,.35), transparent 55%),
-      radial-gradient(700px 320px at 80% 0%, rgba(167,139,250,.35), transparent 55%),
-      rgba(255,255,255,.10);
-  }
-  .panel h2{ margin:0 0 6px; font-size:20px; }
-  .panel p{ margin:6px 0; color:#e2e8f0; font-size:13px; line-height:1.35; }
-  .panel .big{
-    font-size:40px;
-    font-weight:1000;
-    margin: 6px 0 6px;
-  }
-  .rankLine{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:10px;
-    margin: 8px 0 10px;
-    font-size:14px;
-    color:#e5e7eb;
-    flex-wrap: wrap;
-  }
-  .rankTag{
-    padding:6px 10px;
-    border-radius:999px;
-    border:1px solid rgba(148,163,184,.25);
-    background: rgba(2,6,23,.35);
-    font-weight:900;
-  }
-  .panel .btnRow{
-    display:flex;
-    gap:10px;
-    margin-top:10px;
-  }
-  .panel .btnRow button{
-    background: linear-gradient(135deg, rgba(96,165,250,.92), rgba(167,139,250,.92));
-    color:#0b1220;
-    border:0;
-  }
-  .panel .btnRow .secondary{
-    background: rgba(148,163,184,.20) !important;
-    color:#e5e7eb !important;
-    border:1px solid rgba(148,163,184,.22) !important;
-  }
-
-  /* celebration confetti */
-  .confetti{
-    position:fixed;
-    left:0; top:0;
-    width:100%; height:100%;
-    pointer-events:none;
-    overflow:hidden;
-  }
-  .conf{
-    position:absolute;
-    font-size:24px;
-    opacity:.95;
-    animation: fall 900ms ease-out forwards;
-    filter: drop-shadow(0 8px 8px rgba(0,0,0,.22));
-  }
-  @keyframes fall{
-    from { transform: translateY(-20px) rotate(0deg); opacity: 0; }
-    20% { opacity: 1; }
-    to { transform: translateY(260px) rotate(220deg); opacity: 0; }
+  .panel{ border-radius:1.4rem; padding:1rem; color:var(--ink); border:1px solid rgba(203,213,225,.25); background:rgba(2,6,23,.55); box-shadow:var(--shadow); }
+  .panel h2{ margin:0 0 .4rem; font-size:1.25rem; }
+  .panel h3{ margin:.8rem 0 .3rem; font-size:1rem; }
+  .panel p, .panel li{ font-size:.9rem; line-height:1.45; color:var(--ink2); }
+  .panel ul{ padding-left:1.1rem; margin:.3rem 0; }
+  .big{ font-size:2.5rem; font-weight:900; margin:.3rem 0; }
+  .btnCol{ display:flex; flex-direction:column; gap:.6rem; }
+  .btnRow{ display:flex; gap:.6rem; }
+  .toggles{ display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center; }
+  .toggle{ background:rgba(2,6,23,.45); color:var(--ink); border:1px solid rgba(203,213,225,.35); border-radius:999px; padding:.5rem .9rem; font-weight:700; font-size:.85rem; }
+  .toggle[aria-pressed="false"]{ opacity:.75; text-decoration:line-through; }
+  .statGrid{ display:grid; grid-template-columns:1fr 1fr; gap:.5rem; }
+  .stat{ background:rgba(255,255,255,.08); border-radius:.9rem; padding:.6rem; text-align:center; }
+  .stat b{ display:block; font-size:1.4rem; color:#fff; } .stat span{ font-size:.78rem; color:var(--ink2); }
+  .levelRow{ display:flex; justify-content:space-between; gap:.5rem; padding:.35rem 0; border-bottom:1px solid rgba(203,213,225,.15); font-size:.9rem; }
+  .modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; padding:1rem; background:rgba(0,0,0,.6); z-index:5; }
+  .modal .panel{ width:min(32.5rem,100%); background:#111a33; text-align:center; }
+  .rankLine{ display:flex; justify-content:center; align-items:center; gap:.6rem; margin:.5rem 0; flex-wrap:wrap; }
+  .confetti{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:6; }
+  .conf{ position:absolute; font-size:1.5rem; animation:fall 900ms ease-out forwards; }
+  @keyframes fall{ from{ transform:translateY(-20px) rotate(0); opacity:0; } 20%{ opacity:1; } to{ transform:translateY(260px) rotate(220deg); opacity:0; } }
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; animation:none !important; }
+    .confetti{ display:none; }
   }
 </style>
 </head>
-
 <body>
 <div class="shell">
-  <div class="app">
+  <main class="app">
     <header>
       <div class="brand">
-        <div class="logo">K+</div>
+        <div class="logo" aria-hidden="true">K+</div>
         <div class="title">
-          <h1>K Swipe: Journey Mode</h1>
-          <p>10 swipes per level • Need <b>7/10</b> to rank up</p>
+          <h1>K Swipe</h1>
+          <p id="subtitle">Potassium Journey</p>
         </div>
       </div>
-      <div class="hud">
-        Level <b id="level">1</b>/5<br/>
-        Card <b id="cardN">1</b>/10<br/>
-        Correct <b id="correctN">0</b>/10
-        <div class="rankPill" id="rankPill">🧑‍🎓 <b>Rookie</b></div>
+      <div class="hud" id="hud" hidden>
+        <span id="hudMode">Level <b>1</b>/5</span><br/>
+        Card <b id="cardN">1</b>/10 · ✔ <b id="correctN">0</b><br/>
+        <span class="pillDark" id="rankPill"></span>
       </div>
     </header>
 
-    <div class="topBars">
-      <div class="progress"><div id="prog"></div></div>
-      <div class="streakPill">Streak: <b id="streak">0</b> 🔥</div>
-    </div>
+    <!-- START -->
+    <section class="screen" id="startScreen" aria-labelledby="startTitle">
+      <div class="panel">
+        <h2 id="startTitle">Learn potassium, one swipe at a time</h2>
+        <p>Each card shows a food or a plate and a serving size. Decide if it is <b>high</b>, <b>moderate</b>, or <b>low</b> in potassium.</p>
+        <ul>
+          <li><b>⬅ Swipe left</b> or tap <b>High</b>: more than 250 mg</li>
+          <li><b>⬆ Swipe up</b> or tap <b>Moderate</b>: 150 to 250 mg</li>
+          <li><b>➡ Swipe right</b> or tap <b>Low</b>: less than 150 mg</li>
+          <li>"Which is lower?" cards: swipe or tap <b>A</b> or <b>B</b>.</li>
+        </ul>
+        <p>Get <b>7 of 10</b> right to unlock the next level. Five levels get harder as you go.</p>
+      </div>
+      <div class="btnCol">
+        <button class="bigBtn" id="continueBtn">Start Level 1</button>
+        <button class="bigBtn secondary" id="dailyBtn">📅 Daily Challenge</button>
+        <div class="btnRow">
+          <button class="bigBtn secondary" id="statsBtn">📊 Stats</button>
+          <button class="bigBtn secondary" id="aboutBtn">ℹ️ About &amp; Sources</button>
+        </div>
+        <button class="bigBtn secondary" id="newJourneyBtn" hidden>Restart from Level 1</button>
+      </div>
+      <div class="toggles">
+        <button class="toggle" id="soundToggle" aria-pressed="true">🔊 Sound</button>
+        <button class="toggle" id="hapticsToggle" aria-pressed="true">📳 Haptics</button>
+      </div>
+    </section>
 
-    <div class="stack" id="stack"></div>
+    <!-- GAME -->
+    <section class="screen" id="gameScreen" hidden aria-label="Game">
+      <div class="topBars">
+        <button class="iconBtn" id="homeBtn" aria-label="Back to start screen">⌂ Menu</button>
+        <div class="progress" role="progressbar" aria-label="Level progress" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0" id="progWrap"><div id="prog"></div></div>
+        <span class="pillDark">Streak <b id="streak">0</b> 🔥</span>
+      </div>
+      <div class="stack" id="stack"></div>
+      <div class="controls" id="controls">
+        <button class="btnHigh" id="highBtn">⬅ High<small>swipe left</small></button>
+        <button class="btnMod" id="modBtn">⬆ Moderate<small>swipe up</small></button>
+        <button class="btnLow" id="lowBtn">Low ➡<small>swipe right</small></button>
+      </div>
+      <div class="toast" id="toast" hidden></div>
+      <div class="sr-only" aria-live="polite" id="live"></div>
+    </section>
 
-    <div class="controls" id="controls">
-      <button class="btnHigh" id="highBtn">⬅ <span>High</span><br/>Limit</button>
-      <button class="btnMod" id="modBtn">⬆ <span>Moderate</span><br/>Portion</button>
-      <button class="btnLow" id="lowBtn"><span>Low</span> ➡<br/>Safer</button>
-    </div>
+    <!-- STATS -->
+    <section class="screen" id="statsScreen" hidden aria-labelledby="statsTitle">
+      <div class="panel" id="statsPanel"></div>
+      <button class="bigBtn secondary backBtn">Back</button>
+    </section>
 
-    <div class="toast" id="toast" style="display:none;"></div>
+    <!-- ABOUT -->
+    <section class="screen" id="aboutScreen" hidden aria-labelledby="aboutTitle">
+      <div class="panel panelText">
+        <h2 id="aboutTitle">About K Swipe</h2>
+        <p>K Swipe was made by a kidney doctor (Dr D) to help patients and families spot foods that are high in potassium.</p>
+        <h3>Medical disclaimer</h3>
+        <p><b>This game is for education only. It is not medical advice.</b> Talk to your kidney doctor, dietitian, or care team before changing what you eat. Potassium needs differ from person to person. They depend on your blood test results, kidney function, whether you are on hemodialysis or peritoneal dialysis, and your medicines. Some people with kidney disease need more potassium, not less.</p>
+        <h3>How foods are sorted</h3>
+        <ul>
+          <li>Low: less than 150 mg per serving</li>
+          <li>Moderate: 150 to 250 mg per serving</li>
+          <li>High: more than 250 mg per serving</li>
+          <li>Plates (whole meals): low under about 500 mg, moderate about 500 to 800 mg, high over about 800 mg</li>
+        </ul>
+        <p>Numbers are rounded estimates. Real values vary by brand, variety, ripeness, and cooking. Portion size matters: two servings of a "low" food can add up to a "high" amount.</p>
+        <h3>Sources</h3>
+        <ul>
+          <li>U.S. Department of Agriculture, FoodData Central (fdc.nal.usda.gov): approximate potassium values per serving</li>
+          <li>National Kidney Foundation (kidney.org): high- and low-potassium food lists and guidance on potassium in kidney disease</li>
+          <li>Product labels for salt substitutes (potassium chloride)</li>
+        </ul>
+        <h3>Privacy</h3>
+        <p>K Swipe collects no data. Your scores and settings stay on this device. <a href="privacy.html">Privacy policy</a></p>
+      </div>
+      <button class="bigBtn secondary backBtn">Back</button>
+    </section>
 
-    <div class="footer">
-      Learning tool only. Potassium goals depend on labs, CKD stage, dialysis, meds.
-    </div>
-  </div>
+    <div class="footer" id="footer">Education only, not medical advice. Your potassium goal depends on your labs, dialysis type, and medicines. Ask your care team.</div>
+  </main>
 </div>
 
-<div class="modal" id="modal">
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="panel" id="panel"></div>
 </div>
-
-<div class="confetti" id="confetti"></div>
+<div class="confetti" id="confetti" aria-hidden="true"></div>
 
 <script>
-/* ---------- SPRITE DETECTION ---------- */
-/* Option A: Emoji-only mode. Sprites disabled to avoid mismatched/incorrect food images. */
-let spriteAvailable = false;
-
-async function checkSprite(){
-  spriteAvailable = false;
-  return false;
+"use strict";
+/* =====================================================================
+   CONTENT DATA (for Dr D's review; every card is listed in CONTENT_REVIEW.md)
+   cat: "low" (<150 mg/serving), "mod" (150-250), "high" (>250)
+   lvl: 1 obvious singles, 2 portion-sensitive, 3 mixed dishes,
+        4 comparison, 5 tricky / hidden sources
+   st:  "kept" (original card; serving + mg added), "changed", "new"
+   mg:  approximate, rounded; src = reference database (not a precise citation)
+   ===================================================================== */
+/* CONTENT-START */
+const USDA = "USDA FoodData Central";
+function F(id, name, emoji, serving, mg, cat, lvl, st, teach, src){
+  return { id, type:"food", name, emoji, serving, mg, cat, lvl, st, teach, src: src || USDA };
 }
-
-/* ---------- LEVEL THEMES (background + rank journey) ---------- */
-const LEVELS = [
-  { name:"Rookie",     emoji:"🧑‍🎓", bgA:"#0b1220", bgB:"#14244b", a1:"#60a5fa", a2:"#a78bfa",
-    vibe:"You’re learning the rules of the potassium universe. Respect." },
-  { name:"Journeyman", emoji:"🧑‍🔧", bgA:"#071a2b", bgB:"#173b55", a1:"#22c55e", a2:"#60a5fa",
-    vibe:"You’ve seen sneaky foods… and didn’t panic. Nice." },
-  { name:"Specialist", emoji:"🧑‍⚕️", bgA:"#1a102a", bgB:"#2b1b4a", a1:"#f59e0b", a2:"#a78bfa",
-    vibe:"You’re spotting potassium ambushes in real time." },
-  { name:"Master",     emoji:"🧙‍♂️", bgA:"#101020", bgB:"#2b2b6a", a1:"#ef4444", a2:"#f59e0b",
-    vibe:"You don’t guess. You *know*. That’s power." },
-  { name:"Guru",       emoji:"🧘‍♂️", bgA:"#061018", bgB:"#0f2a3b", a1:"#38bdf8", a2:"#22c55e",
-    vibe:"You are one with the label… and the label is one with you." }
-];
-
-function applyLevelTheme(level){
-  const t = LEVELS[level-1];
-  document.documentElement.style.setProperty("--bgA", t.bgA);
-  document.documentElement.style.setProperty("--bgB", t.bgB);
-  document.documentElement.style.setProperty("--accent1", t.a1);
-  document.documentElement.style.setProperty("--accent2", t.a2);
-
-  const rp = document.getElementById("rankPill");
-  rp.innerHTML = `${t.emoji} <b>${t.name}</b>`;
-}
-
-/* ---------- SPRITES (coords in 4x3 grid) ---------- */
-const SPRITES = {
-  banana:      {x:0, y:0, label:"Banana"},
-  avocado:     {x:1, y:0, label:"Avocado"},
-  potato:      {x:2, y:0, label:"Potato"},
-  tomatoSauce: {x:3, y:0, label:"Tomato Sauce"},
-  broccoli:    {x:0, y:1, label:"Broccoli"},
-  beans:       {x:1, y:1, label:"Beans"},
-  dairy:       {x:2, y:1, label:"Milk/Yogurt"},
-  cucumber:    {x:3, y:1, label:"Cucumber"},
-  apple:       {x:0, y:2, label:"Apple"},
-  blueberries: {x:1, y:2, label:"Blueberries"},
-  grapes:      {x:2, y:2, label:"Grapes"},
-  cucumber2:   {x:3, y:2, label:"Cucumber (alt)"}
-};
-
-/* ---------- FOODS POOL (each level picks 7) ---------- */
 const FOODS = [
-  // sprite-backed
-  { key:"banana", emoji:"🍌", cat:"high", teach:"Bananas are usually high potassium." },
-  { key:"avocado", emoji:"🥑", cat:"high", teach:"Avocados are very high potassium." },
-  { key:"potato", emoji:"🥔", cat:"high", teach:"Potatoes are high unless boiled & drained (leached)." },
-  { key:"tomatoSauce", emoji:"🍅", cat:"high", teach:"Tomato sauce is concentrated → often high potassium." },
-  { key:"broccoli", emoji:"🥦", cat:"mod",  teach:"Broccoli is often moderate; portion matters." },
-  { key:"beans", emoji:"🫘", cat:"mod",  teach:"Beans can be moderate→high; portions matter a lot." },
-  { key:"dairy", emoji:"🥛", cat:"mod",  teach:"Dairy is often moderate potassium (and phosphorus too)." },
-  { key:"cucumber", emoji:"🥒", cat:"low",  teach:"Cucumber is usually low potassium." },
-  { key:"apple", emoji:"🍎", cat:"low",  teach:"Apples are generally low potassium." },
-  { key:"blueberries", emoji:"🫐", cat:"low",  teach:"Blueberries are low potassium—nice pick." },
-  { key:"grapes", emoji:"🍇", cat:"low",  teach:"Grapes are low potassium in usual servings." },
-
-  // emoji extras
-  { name:"Orange Juice", emoji:"🧃", cat:"high", teach:"Juice can raise potassium quickly." },
-  { name:"Coconut Water", emoji:"🥥", cat:"high", teach:"Coconut water is often a potassium bomb." },
-  { name:"Dried Fruit", emoji:"🍑", cat:"high", teach:"Dried fruit concentrates potassium." },
-  { name:"Sweet Potato", emoji:"🍠", cat:"high", teach:"Sweet potatoes are often high potassium." },
-  { name:"Spinach (cooked)", emoji:"🥬", cat:"high", teach:"Cooked greens concentrate potassium." },
-  { name:"French Fries", emoji:"🍟", cat:"high", teach:"Potato + big portion → usually high potassium." },
-
-  { name:"Tomato (fresh)", emoji:"🍅", cat:"mod", teach:"Fresh tomato can be moderate; sauce is higher." },
-  { name:"Watermelon", emoji:"🍉", cat:"mod", teach:"Often moderate; keep portions reasonable." },
-  { name:"Kiwi", emoji:"🥝", cat:"mod", teach:"Often moderate potassium; portion matters." },
-  { name:"Canned Soup", emoji:"🥫", cat:"mod", teach:"Potassium varies; labels + portions matter." },
-
-  { name:"White Rice", emoji:"🍚", cat:"low", teach:"Plain white rice is typically low potassium." },
-  { name:"Pasta (plain)", emoji:"🍝", cat:"low", teach:"Plain pasta is usually low potassium (watch sauce)." },
-  { name:"Bread", emoji:"🍞", cat:"low", teach:"Most breads are low potassium per slice." },
-  { name:"Lettuce Salad", emoji:"🥗", cat:"low", teach:"Lettuce is low potassium." },
-  { name:"Strawberries", emoji:"🍓", cat:"low", teach:"Many berries are low potassium." },
-  { name:"Pineapple", emoji:"🍍", cat:"low", teach:"Pineapple tends to be lower potassium." },
-  { name:"Water", emoji:"💧", cat:"low", teach:"Water is always a safe drink choice." }
+  // ---- Level 1: obvious singles ----
+  F("banana","Banana","🍌","1 medium",420,"high",1,"kept","Bananas are a classic high-potassium fruit."),
+  F("avocado","Avocado","🥑","½ avocado",345,"high",1,"kept","Avocados are very high in potassium, even half of one."),
+  F("baked-potato","Baked potato (with skin)","🥔","1 medium",900,"high",1,"changed","A baked potato is one of the highest-potassium foods. Boiling diced potato in lots of water and draining it (leaching) lowers the amount."),
+  F("oj","Orange juice","🧃","1 cup (8 oz)",495,"high",1,"kept","Juice packs the potassium of several oranges into one glass."),
+  F("coconut-water","Coconut water","🥥","1 cup (8 oz)",600,"high",1,"kept","Coconut water is marketed as hydrating, but it is a potassium bomb."),
+  F("raisins","Raisins & dried fruit","🍇","¼ cup",270,"high",1,"changed","Drying fruit removes water and concentrates potassium into a small handful."),
+  F("sweet-potato","Sweet potato (baked)","🍠","1 medium",540,"high",1,"kept","Sweet potatoes are high in potassium."),
+  F("spinach-cooked","Spinach, cooked","🥬","½ cup",420,"high",1,"changed","Cooking shrinks a big pile of spinach into a small, high-potassium serving. Boiling and draining (leaching) lowers potassium somewhat, but cooked spinach is still high."),
+  F("tomato-sauce","Tomato sauce / marinara","🍅","½ cup",420,"high",1,"kept","Tomato sauce is concentrated tomato, so it is high in potassium."),
+  F("apple","Apple","🍎","½ cup slices (about ½ small apple)",60,"low",1,"kept","Apples are a low-potassium fruit in usual portions."),
+  F("blueberries","Blueberries","🫐","½ cup",55,"low",1,"kept","Blueberries are low in potassium. Nice pick."),
+  F("strawberries","Strawberries","🍓","½ cup sliced",125,"low",1,"kept","Strawberries are a lower-potassium berry."),
+  F("pineapple","Pineapple","🍍","½ cup chunks",90,"low",1,"kept","Pineapple is a lower-potassium fruit."),
+  F("cucumber","Cucumber","🥒","½ cup sliced",80,"low",1,"kept","Cucumber is low in potassium."),
+  F("white-rice","White rice","🍚","½ cup cooked",30,"low",1,"kept","Plain white rice is low in potassium."),
+  F("pasta","Pasta (plain)","🍝","½ cup cooked",30,"low",1,"kept","Plain pasta is low. The sauce decides the rest."),
+  F("bread","White bread","🍞","1 slice",35,"low",1,"kept","White bread is low in potassium per slice."),
+  F("lettuce","Lettuce (iceberg)","🥗","1 cup shredded",70,"low",1,"kept","Lettuce is low in potassium."),
+  F("water","Water","💧","1 cup (8 oz)",0,"low",1,"changed","Water has no potassium. Stick to your fluid limit if you have one."),
+  F("egg","Egg","🍳","1 large",70,"low",1,"new","Eggs are low in potassium."),
+  F("cauliflower","Cauliflower, cooked","🥦","½ cup",90,"low",1,"new","Cauliflower is a low-potassium vegetable."),
+  F("green-beans","Green beans, cooked","🫛","½ cup",90,"low",1,"new","Green beans are low in potassium."),
+  F("cranberry-juice","Cranberry juice cocktail","🧃","1 cup (8 oz)",45,"low",1,"new","Cranberry juice cocktail is a low-potassium juice choice (watch the sugar)."),
+  F("rice-milk","Rice milk (unfortified)","🥛","1 cup",65,"low",1,"new","Rice milk is much lower in potassium than cow's milk. Check labels: some brands add potassium or phosphorus."),
+  F("lentils","Lentils, cooked","🫘","½ cup",365,"high",1,"new","Lentils are high in potassium."),
+  F("prune-juice","Prune juice","🧃","½ cup",350,"high",1,"new","Prunes and prune juice are high in potassium."),
+  // ---- Level 2: portions matter ----
+  F("broccoli","Broccoli, cooked","🥦","½ cup",230,"mod",2,"kept","Broccoli is moderate; a bigger portion pushes it high."),
+  F("beans","Kidney beans, cooked","🫘","½ cup",360,"high",2,"changed","Beans are high in potassium per half cup."),
+  F("milk","Milk (cow's)","🥛","1 cup (8 oz)",365,"high",2,"changed","A cup of milk is high in potassium (and phosphorus). Many renal diets limit milk to about ½ cup a day."),
+  F("tomato","Tomato, fresh","🍅","½ cup chopped",215,"mod",2,"kept","Fresh tomato is moderate in small amounts. A whole medium tomato is closer to 290 mg, and sauce is higher."),
+  F("watermelon","Watermelon","🍉","½ cup diced",85,"low",2,"changed","A small serving of watermelon is low. A full cup is about 170 mg (moderate), and big wedges add up fast."),
+  F("kiwi","Kiwi","🥝","1 large",280,"high",2,"changed","Kiwi is high in potassium."),
+  F("grapes","Grapes","🍇","½ cup (about 15)",145,"low",2,"kept","Grapes are low in a ½ cup serving, but they are easy to overeat."),
+  F("corn","Corn","🌽","½ cup",195,"mod",2,"new","Corn is moderate in potassium."),
+  F("carrots","Carrots, cooked","🥕","½ cup",180,"mod",2,"new","Cooked carrots are moderate."),
+  F("orange","Orange","🍊","1 medium",235,"mod",2,"new","One orange is moderate, near the top of the range. Orange juice is much higher."),
+  F("cantaloupe","Cantaloupe","🍈","½ cup cubed",215,"mod",2,"new","Cantaloupe is moderate in a small serving and high in a big one."),
+  F("honeydew","Honeydew melon","🍈","½ cup cubed",200,"mod",2,"new","Honeydew is moderate; keep portions small."),
+  F("pear","Pear","🍐","1 medium",205,"mod",2,"new","A fresh pear is moderate. Canned pears, drained, are lower."),
+  F("canned-peaches","Canned peaches, drained","🥫","½ cup",120,"low",2,"new","Canned fruit drained of its juice is usually lower in potassium than fresh."),
+  F("spinach-raw","Spinach, raw","🥬","1 cup",165,"mod",2,"new","Raw spinach is moderate per cup. Cooking concentrates it."),
+  F("mushrooms","Mushrooms, cooked","🍄","½ cup",280,"high",2,"new","Cooked mushrooms are high in potassium."),
+  F("butternut","Butternut squash, cooked","🎃","½ cup cubed",290,"high",2,"new","Winter squash (butternut, acorn) is high in potassium."),
+  F("zucchini","Zucchini, cooked","🥒","½ cup",240,"mod",2,"new","Cooked zucchini is moderate."),
+  F("asparagus","Asparagus, cooked","🌿","½ cup",200,"mod",2,"new","Asparagus is moderate in potassium."),
+  F("brussels","Brussels sprouts, cooked","🥬","½ cup",250,"mod",2,"new","Brussels sprouts sit at the top of moderate."),
+  F("bell-pepper","Bell pepper","🫑","½ cup chopped",130,"low",2,"new","Bell peppers are low in potassium."),
+  F("onion","Onion","🧅","½ cup chopped",120,"low",2,"new","Onions are low in potassium."),
+  F("cabbage","Cabbage, raw","🥬","½ cup shredded",60,"low",2,"new","Cabbage is low in potassium."),
+  F("okra","Okra, cooked","🥬","½ cup",110,"low",2,"new","Okra is low in potassium in a half cup."),
+  F("brown-rice","Brown rice","🍚","½ cup cooked",75,"low",2,"new","Brown rice is higher than white rice but still low per half cup. It has more phosphorus."),
+  F("quinoa","Quinoa","🥣","½ cup cooked",160,"mod",2,"new","Quinoa is moderate, higher than white rice or pasta."),
+  F("oatmeal","Oatmeal","🥣","½ cup cooked",80,"low",2,"new","Plain cooked oatmeal is low in potassium."),
+  F("wheat-bread","Whole wheat bread","🍞","1 slice",80,"low",2,"new","Whole wheat bread is low per slice (white bread is lower in phosphorus)."),
+  F("almonds","Almonds","🥜","1 oz (about 23)",210,"mod",2,"new","Nuts are moderate in a small handful and high in bigger handfuls."),
+  F("peanut-butter","Peanut butter","🥜","2 tbsp",190,"mod",2,"new","Peanut butter is moderate per 2 tablespoons."),
+  F("chicken","Chicken breast, roasted","🍗","3 oz",220,"mod",2,"new","Plain chicken is moderate per 3 ounces. Bigger portions add up."),
+  F("salmon","Salmon, cooked","🐟","3 oz",325,"high",2,"new","Salmon is high in potassium per 3 ounces."),
+  F("coffee","Coffee, brewed","☕","1 cup (8 oz)",115,"low",2,"new","One cup of black coffee is low. Several cups a day add up."),
+  F("tea","Tea, brewed","🍵","1 cup (8 oz)",90,"low",2,"new","Brewed tea is low in potassium."),
+  F("dark-chocolate","Dark chocolate (70-85%)","🍫","1 oz",205,"mod",2,"new","Dark chocolate is moderate per ounce; a whole bar is high."),
+  F("milk-chocolate","Milk chocolate bar","🍫","1.5 oz bar",160,"mod",2,"new","A regular milk chocolate bar is moderate."),
+  F("leached-potato","Potato, leached (boiled & drained)","🥔","½ cup diced",160,"mod",2,"new","Peeling, dicing, and boiling potatoes in lots of water, then draining, removes a good share of the potassium. It still counts, so keep portions small."),
+  // ---- Level 3: mixed dishes / prepared foods ----
+  F("pizza","Cheese pizza","🍕","1 slice",180,"mod",3,"changed","One slice of pizza is moderate. Two slices push it close to high, so portion matters."),
+  F("fries","French fries","🍟","medium order",600,"high",3,"kept","Fries are potatoes in a big portion, so they are high."),
+  F("canned-soup","Canned chicken noodle soup","🥫","1 cup",200,"mod",3,"changed","Canned soups vary a lot. Tomato and bean soups are often high, and some 'low sodium' soups use potassium chloride. Read the label."),
+  F("guacamole","Guacamole","🥑","¼ cup",330,"high",3,"new","Guacamole is mostly avocado, so even a small scoop is high."),
+  F("hummus","Hummus","🫘","¼ cup",140,"low",3,"new","Hummus is near the top of low in ¼ cup. Large scoops add up."),
+  F("chili","Chili with beans","🥫","1 cup",900,"high",3,"new","Beans plus tomato make chili very high in potassium."),
+  F("granola","Granola","🥣","½ cup",200,"mod",3,"new","Granola is moderate; versions with dried fruit and nuts are higher."),
+  F("chips","Potato chips","🥔","1 oz (about 15 chips)",350,"high",3,"new","Potato chips are high. They are made from potatoes."),
+  F("pretzels","Pretzels","🥨","1 oz",40,"low",3,"new","Pretzels are low in potassium (but salty)."),
+  F("popcorn","Popcorn","🍿","3 cups popped",90,"low",3,"new","Plain popcorn is a low-potassium snack."),
+  F("ice-cream","Vanilla ice cream","🍨","½ cup",130,"low",3,"new","Ice cream is low per half cup (but has phosphorus)."),
+  F("cheese","Cheddar cheese","🧀","1 oz",30,"low",3,"new","Hard cheese is low in potassium but high in phosphorus and salt."),
+  F("yogurt","Yogurt, plain","🥛","6 oz",350,"high",3,"new","Yogurt is high in potassium (and phosphorus)."),
+  F("ketchup","Ketchup","🍅","1 tbsp",50,"low",3,"new","A tablespoon of ketchup is low. Tomato sauce by the cupful is not."),
+  F("salsa","Salsa","🌶️","2 tbsp",80,"low",3,"new","A couple of spoonfuls of salsa are low. A big bowl adds up."),
+  F("bagel","Plain bagel","🥯","1 medium",100,"low",3,"new","A plain bagel is low in potassium."),
+  F("tortilla","Flour tortilla","🫓","1 (8 inch)",60,"low",3,"new","Flour tortillas are low in potassium."),
+  // ---- Level 5: tricky / hidden sources ----
+  F("salt-substitute","Salt substitute (NoSalt, Nu-Salt)","🧂","¼ tsp",650,"high",5,"new","Salt substitutes are potassium chloride. This is the most dangerous hidden source: a few shakes can add hundreds of mg. Avoid unless your care team says it is OK.","Product labels / " + USDA),
+  F("lite-salt","Lite / Lo salt (half salt)","🧂","¼ tsp",350,"high",5,"new","'Lite' salts are about half potassium chloride, so they are high. Use herbs, lemon, or garlic instead.","Product labels"),
+  F("cola","Cola (soda)","🥤","12 oz can",15,"low",5,"changed","Cola is low in potassium, but dark colas have phosphoric acid (phosphorus), which matters in kidney disease."),
+  F("sports-drink","Sports drink (Gatorade-type)","🥤","12 oz",80,"low",5,"new","Most sports drinks are low in potassium, but brands vary. 'Electrolyte' and coconut-based drinks can be much higher. Check the label."),
+  F("chocolate-milk","Chocolate milk","🥛","1 cup",420,"high",5,"new","Milk plus cocoa makes chocolate milk high in potassium."),
+  F("pistachios","Pistachios","🥜","1 oz (about 49)",290,"high",5,"new","Pistachios are one of the higher-potassium nuts."),
+  F("low-sodium-veg-juice","Low-sodium tomato/vegetable juice","🍅","1 cup",550,"high",5,"new","'Low sodium' vegetable juices are often very high in potassium, partly from potassium chloride added to replace salt."),
+  F("enhanced-pork","'Enhanced' pork or chicken (solution added)","🥩","3 oz",400,"high",5,"new","Meats labeled 'enhanced' or 'contains up to X% solution' may be injected with potassium salts. Check the label for 'potassium'.","Estimate; varies by product label"),
+  F("raisin-bran","Raisin bran cereal","🥣","1 cup",360,"high",5,"new","Bran plus raisins makes this cereal high in potassium."),
+  F("medjool-dates","Medjool dates","🌴","2 dates",335,"high",5,"new","Dates are dried fruit, so they are high."),
+  F("dried-apricots","Dried apricots","🫙","¼ cup",375,"high",5,"new","Dried apricots are among the highest-potassium fruits."),
+  F("artichoke","Artichoke, cooked","🌿","1 medium",340,"high",5,"new","Artichokes are high in potassium."),
+  F("beets","Beets, cooked","🥗","½ cup",260,"high",5,"new","Beets are high in potassium."),
+  F("swiss-chard","Swiss chard, cooked","🥬","½ cup",480,"high",5,"new","Cooked chard is very high, like cooked spinach."),
+  F("ors","Oral rehydration drink (Pedialyte-type)","🥤","1 cup",190,"mod",5,"new","Rehydration drinks contain potassium on purpose. They are moderate per cup but add up over a day.","Product labels"),
+  F("wine","Red wine","🍷","5 oz glass",190,"mod",5,"new","A glass of red wine is moderate in potassium."),
+  F("beer","Beer","🍺","12 oz",95,"low",5,"new","Regular beer is low in potassium (but counts toward fluids)."),
+  F("collards","Collard greens, cooked","🥬","½ cup",110,"low",5,"new","Surprise: cooked collards are low per half cup, much lower than cooked spinach or chard."),
 ];
 
-/* ---------- TOP 15 COMFORT FOOD DINNER PLATES ---------- */
-const MEAL_LIBRARY = [
-  // FAST FOOD COMBOS
-  {
-    name:"Cheeseburger + Fries (Fast Food)",
-    emoji:"🍔",
-    cat:"high",
-    parts:[
-      {t:"Cheeseburger 🍔",k:"mod"},
-      {t:"French fries 🍟",k:"high"},
-      {t:"Ketchup 🍅",k:"mod"},
-      {t:"Soda 🥤",k:"mod"},
-    ],
-    teach:"The burger is moderate, but fries and sauces push this meal high potassium."
-  },
-  {
-    name:"Chicken Sandwich Combo",
-    emoji:"🍗",
-    cat:"mod",
-    parts:[
-      {t:"Fried chicken sandwich 🍗",k:"mod"},
-      {t:"Small fries 🍟",k:"mod"},
-      {t:"Pickles 🥒",k:"low"},
-      {t:"Iced tea ☕",k:"low"},
-    ],
-    teach:"Often moderate — portions and sides decide where this lands."
-  },
-
-  // PIZZA / CASUAL
-  {
-    name:"Pepperoni Pizza Night",
-    emoji:"🍕",
-    cat:"high",
-    parts:[
-      {t:"2 slices pizza 🍕",k:"high"},
-      {t:"Tomato sauce 🍅",k:"high"},
-      {t:"Cheese 🧀",k:"mod"},
-      {t:"Side salad 🥗",k:"low"},
-    ],
-    teach:"Pizza is commonly high potassium due to sauce, cheese, and portion size."
-  },
-
-  // MEXICAN / TEX-MEX
-  {
-    name:"Burrito Plate",
-    emoji:"🌯",
-    cat:"high",
-    parts:[
-      {t:"Burrito 🌯",k:"high"},
-      {t:"Beans 🫘",k:"high"},
-      {t:"Rice 🍚",k:"low"},
-      {t:"Salsa 🍅",k:"mod"},
-    ],
-    teach:"Beans and salsa stack potassium quickly in burritos."
-  },
-  {
-    name:"Taco Night (3 tacos)",
-    emoji:"🌮",
-    cat:"mod",
-    parts:[
-      {t:"3 tacos 🌮",k:"mod"},
-      {t:"Salsa 🍅",k:"mod"},
-      {t:"Rice 🍚",k:"low"},
-      {t:"Water 💧",k:"low"},
-    ],
-    teach:"Often moderate — watch portions and toppings."
-  },
-
-  // ASIAN TAKEOUT
-  {
-    name:"Ramen Bowl",
-    emoji:"🍜",
-    cat:"mod",
-    parts:[
-      {t:"Ramen noodles 🍜",k:"mod"},
-      {t:"Broth 🍲",k:"mod"},
-      {t:"Spinach 🥬",k:"high"},
-      {t:"Egg 🍳",k:"low"},
-    ],
-    teach:"Ramen varies; cooked greens and broth can raise potassium."
-  },
-
-  // COMFORT DINNERS
-  {
-    name:"Fried Chicken & Mashed Potatoes",
-    emoji:"🍗",
-    cat:"high",
-    parts:[
-      {t:"Fried chicken 🍗",k:"mod"},
-      {t:"Mashed potatoes 🥔",k:"high"},
-      {t:"Gravy 🍲",k:"mod"},
-      {t:"Green beans 🥬",k:"mod"},
-    ],
-    teach:"Potatoes and gravy are the main potassium drivers here."
-  },
-  {
-    name:"Steak & Baked Potato",
-    emoji:"🥩",
-    cat:"high",
-    parts:[
-      {t:"Steak 🥩",k:"mod"},
-      {t:"Baked potato 🥔",k:"high"},
-      {t:"Butter 🧈",k:"low"},
-      {t:"Side salad 🥗",k:"low"},
-    ],
-    teach:"The baked potato makes this meal high potassium."
-  },
-
-  // BREAKFAST FOR DINNER
-  {
-    name:"Pancakes & Eggs",
-    emoji:"🥞",
-    cat:"low",
-    parts:[
-      {t:"Pancakes 🥞",k:"low"},
-      {t:"Eggs 🍳",k:"low"},
-      {t:"Apple 🍎",k:"low"},
-      {t:"Water 💧",k:"low"},
-    ],
-    teach:"Mostly low potassium — portions still matter."
-  }
+function M(id, name, emoji, mg, cat, parts, teach, st, lvl){
+  return { id, type:"meal", name, emoji, mg, cat, parts: parts.map(([t,k])=>({t,k})), teach, st, lvl: lvl||3, src: USDA + " (summed estimate)" };
+}
+const MEALS = [
+  M("burger-fries","Cheeseburger, fries & cola","🍔",950,"high",[["Cheeseburger 🍔","high"],["Medium French fries 🍟","high"],["Ketchup 🍅","low"],["Cola 🥤","low"]],"The fries drive this plate high. The cola is low in potassium but has phosphorus.","changed"),
+  M("chicken-sandwich","Chicken sandwich combo","🍗",730,"mod",[["Fried chicken sandwich 🍗","high"],["Small fries 🍟","high"],["Pickles 🥒","low"],["Iced tea 🍵","low"]],"Moderate overall. A small fries keeps it out of the high zone; a large would not.","kept"),
+  M("pizza-night","Pepperoni pizza night","🍕",500,"mod",[["2 slices pepperoni pizza 🍕","high"],["Side salad 🥗","low"],["Water 💧","low"]],"Two slices plus a salad land in moderate. A third slice or extra sauce pushes it higher.","changed"),
+  M("burrito","Bean burrito plate","🌯",850,"high",[["Bean burrito 🌯","high"],["Rice 🍚","low"],["Salsa 🌶️","low"]],"Beans are the main potassium source here.","changed"),
+  M("tacos","Taco night (3 tacos)","🌮",560,"mod",[["3 beef tacos 🌮","high"],["Salsa 🌶️","low"],["Rice 🍚","low"],["Water 💧","low"]],"Moderate. Skip the beans and guacamole to keep it there.","kept"),
+  M("ramen","Ramen bowl with spinach","🍜",700,"mod",[["Ramen noodles & broth 🍜","mod"],["Cooked spinach 🥬","high"],["Egg 🍳","low"]],"The cooked spinach adds most of the potassium. Swap it for cabbage or bean sprouts.","kept"),
+  M("fried-chicken","Fried chicken & mashed potatoes","🍗",1100,"high",[["Fried chicken 🍗","high"],["Mashed potatoes 🥔","high"],["Gravy 🍲","low"],["Green beans 🫛","low"]],"Mashed potatoes are the main driver.","kept"),
+  M("steak","Steak & baked potato","🥩",1500,"high",[["Steak, 6 oz 🥩","high"],["Baked potato 🥔","high"],["Butter 🧈","low"],["Side salad 🥗","low"]],"A big steak plus a baked potato is very high.","kept"),
+  M("pancakes","Pancakes & eggs","🥞",350,"low",[["2 pancakes 🥞","low"],["2 eggs 🍳","low"],["Apple slices 🍎","low"],["Water 💧","low"]],"Mostly low. Skip the banana topping to keep it low.","kept"),
+  M("spaghetti","Spaghetti & meatballs","🍝",750,"mod",[["1 cup spaghetti 🍝","low"],["½ cup marinara 🍅","high"],["2 meatballs 🧆","mod"],["Garlic bread 🍞","low"]],"The marinara sauce is the potassium driver. Olive oil and garlic is a lower sauce.","new"),
+  M("stir-fry","Chicken stir-fry & white rice","🥡",450,"low",[["3 oz chicken 🍗","mod"],["Peppers & onions 🫑","low"],["1 cup white rice 🍚","low"]],"Low overall: lean protein, low-potassium vegetables, and white rice.","new"),
+  M("salmon-plate","Salmon, sweet potato & spinach","🐟",1285,"high",[["Salmon 🐟","high"],["Baked sweet potato 🍠","high"],["Cooked spinach 🥬","high"]],"A 'healthy' plate can still be very high in potassium.","new"),
+  M("turkey-sandwich","Turkey sandwich lunch","🥪",350,"low",[["Turkey on white bread 🥪","mod"],["Lettuce 🥗","low"],["Apple slices 🍎","low"],["Water 💧","low"]],"A low-potassium lunch. Watch the salt in deli meat.","new"),
+  M("chili-bowl","Chili & cornbread","🥫",950,"high",[["1 cup chili with beans 🥫","high"],["Cornbread 🍞","low"],["Shredded cheese 🧀","low"]],"Beans and tomato make chili high.","new"),
+  M("oatmeal-bfast","Oatmeal breakfast","🥣",320,"low",[["Oatmeal 🥣","low"],["Blueberries 🫐","low"],["1 egg 🍳","low"],["1 cup coffee ☕","low"]],"A low-potassium breakfast.","new"),
+  M("smoothie","Banana-orange smoothie & yogurt","🥤",970,"high",[["Banana 🍌","high"],["Orange juice 🧃","high"],["Yogurt 🥛","high"]],"Smoothies blend several high-potassium foods into one cup.","new"),
+  M("chicken-rice","Grilled chicken, rice & green beans","🍗",370,"low",[["3 oz grilled chicken 🍗","mod"],["White rice 🍚","low"],["Green beans 🫛","low"]],"A simple low-potassium dinner.","new"),
+  M("chips-guac","Chips & guacamole","🥑",820,"high",[["Tortilla chips 🌮","low"],["½ cup guacamole 🥑","high"],["Salsa 🌶️","low"]],"The guacamole makes this snack high.","new"),
+  M("chana","Chickpea curry & rice","🍛",650,"mod",[["Chickpea curry 🍛","high"],["White rice 🍚","low"],["Naan 🫓","low"]],"Moderate thanks to the rice and naan. Adding potatoes would push it high.","new"),
+  M("lentil-soup","Lentil soup (2 cups) & bread","🍲",900,"high",[["2 cups lentil soup 🍲","high"],["Bread roll 🍞","low"]],"Lentils are high, and two cups double it.","new"),
+  M("fried-rice","Egg fried rice & cucumber salad","🍳",300,"low",[["Egg fried rice 🍳","low"],["Cucumber salad 🥒","low"],["Tea 🍵","low"]],"Low overall. Go easy on soy sauce for salt.","new"),
+  M("salad-bowl","'Power' salad bowl","🥗",1250,"high",[["2 cups raw spinach 🥬","high"],["½ avocado 🥑","high"],["Tomato 🍅","mod"],["Black beans 🫘","high"]],"Healthy-looking bowls are often very high in potassium.","new",5),
 ];
 
-
-function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-function makeDinnerPlate(){
-  // Legacy helper (kept for compatibility); prefer pickUniqueMeals() for no-repeats.
-  return JSON.parse(JSON.stringify(pick(MEAL_LIBRARY)));
+function C(id, a, b, lower, teach, lvl){
+  return { id, type:"compare", a, b, lower, teach, lvl: lvl||4, st:"new", src: USDA };
 }
+function opt(name, emoji, serving, mg){ return { name, emoji, serving, mg }; }
+const COMPARES = [
+  C("cmp-potato", opt("Baked potato","🥔","1 medium",900), opt("Leached potato","🥔","½ cup, boiled & drained",160),"b","Leaching (peel, dice, boil in lots of water, drain) plus a smaller portion makes a big difference."),
+  C("cmp-banana-apple", opt("Apple slices","🍎","½ cup",60), opt("Banana","🍌","1 medium",420),"a","The apple is far lower."),
+  C("cmp-juice", opt("Orange juice","🧃","1 cup",495), opt("Cranberry juice cocktail","🧃","1 cup",45),"b","Cranberry juice cocktail is low; orange juice is high."),
+  C("cmp-salt", opt("Regular salt","🧂","¼ tsp",0), opt("Salt substitute","🧂","¼ tsp",650),"a","Salt substitutes swap sodium for potassium chloride, which can be dangerous in kidney disease. (Regular salt has its own limits.)",5),
+  C("cmp-drinks", opt("Cola","🥤","12 oz",15), opt("Coconut water","🥥","1 cup",600),"a","Coconut water is the potassium bomb. Cola is low in potassium but has phosphorus.",5),
+  C("cmp-grains", opt("White rice","🍚","½ cup",30), opt("Quinoa","🥣","½ cup",160),"a","White rice is lower than quinoa."),
+  C("cmp-snacks", opt("Pretzels","🥨","1 oz",40), opt("Potato chips","🥔","1 oz",350),"a","Chips are made from potatoes; pretzels are not."),
+  C("cmp-grapes", opt("Raisins","🍇","¼ cup",270), opt("Grapes","🍇","½ cup",145),"b","Same fruit, but drying concentrates the potassium.",5),
+  C("cmp-sauce", opt("Marinara sauce","🍅","½ cup",420), opt("Garlic & olive oil","🫒","2 tbsp",10),"b","Olive oil and garlic is a low-potassium pasta sauce."),
+  C("cmp-milk", opt("Cow's milk","🥛","1 cup",365), opt("Rice milk (unfortified)","🥛","1 cup",65),"b","Rice milk is much lower. Check labels for added potassium or phosphorus."),
+  C("cmp-greens", opt("Cooked spinach","🥬","½ cup",420), opt("Lettuce","🥗","1 cup",70),"b","Cooking shrinks spinach into a concentrated serving."),
+  C("cmp-beans", opt("Kidney beans","🫘","½ cup",360), opt("Green beans","🫛","½ cup",90),"b","Green beans are pods, not dried beans, and are much lower."),
+  C("cmp-nuts", opt("Almonds","🥜","1 oz",210), opt("Popcorn","🍿","3 cups",90),"b","Plain popcorn is the lower-potassium crunchy snack."),
+  C("cmp-melon", opt("Watermelon","🍉","½ cup",85), opt("Cantaloupe","🍈","½ cup",215),"a","Watermelon is lower than cantaloupe per half cup."),
+  C("cmp-v8", opt("Regular vegetable juice","🍅","1 cup",470), opt("Low-sodium vegetable juice","🍅","1 cup",900),"a","Surprise: the low-sodium version is often higher, because potassium chloride replaces salt. Both are high.",5),
+];
+/* CONTENT-END */
 
-function pickUniqueMeals(n){
-  // No repeats within a level: sample without replacement from MEAL_LIBRARY
-  const shuffled = shuffle(MEAL_LIBRARY);
-  return shuffled.slice(0, Math.min(n, shuffled.length)).map(m => JSON.parse(JSON.stringify(m)));
+/* ---------- LEVELS ---------- */
+const LEVELS = [
+  { name:"Rookie",     emoji:"🧑‍🎓", bgA:"#0b1220", bgB:"#14244b", a1:"#60a5fa", a2:"#a78bfa", theme:"Obvious foods" },
+  { name:"Journeyman", emoji:"🧑‍🔧", bgA:"#071a2b", bgB:"#173b55", a1:"#4ade80", a2:"#60a5fa", theme:"Portions matter" },
+  { name:"Specialist", emoji:"🧑‍⚕️", bgA:"#1a102a", bgB:"#2b1b4a", a1:"#fbbf24", a2:"#a78bfa", theme:"Mixed dishes" },
+  { name:"Master",     emoji:"🧙", bgA:"#101020", bgB:"#2b2b6a", a1:"#f87171", a2:"#fbbf24", theme:"Which is lower?" },
+  { name:"Guru",       emoji:"🧘", bgA:"#061018", bgB:"#0f2a3b", a1:"#38bdf8", a2:"#4ade80", theme:"Hidden sources" },
+];
+const MAX_LEVEL = 5, PASS_SCORE = 7, PER_LEVEL = 10;
+const CAT_LABEL = { high:"High", mod:"Moderate", low:"Low" };
+
+/* ---------- STORAGE (on-device only) ---------- */
+const STORE_KEY = "kswipe.v2";
+function defaultSave(){
+  return { unlocked:1, best:{}, stats:{ answered:0, correct:0, levelsPlayed:0, levelsPassed:0, journeys:0, dailyPlayed:0 },
+           daily:{ last:null, streak:0, bestStreak:0, lastScore:null }, settings:{ sound:true, haptics:true } };
 }
+function loadSave(){
+  try{
+    const s = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+    const d = defaultSave();
+    if (!s) return d;
+    return { ...d, ...s, stats:{...d.stats, ...s.stats}, daily:{...d.daily, ...s.daily}, settings:{...d.settings, ...s.settings}, best:{...s.best} };
+  }catch(e){ return defaultSave(); }
+}
+let save = loadSave();
+function persist(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(save)); }catch(e){} }
 
-/* ---------- LEVEL SYSTEM ---------- */
-const MAX_LEVEL = 5;
-const PASS_SCORE = 7; // 7/10 to advance
-let level = 1;
-
-let round = [];
-let idx = 0;
-let correct = 0;
-let streak = 0;
-let busy = false;
-
-/* ---------- UI ---------- */
-const stackEl = document.getElementById("stack");
-const toastEl = document.getElementById("toast");
-const levelEl = document.getElementById("level");
-const cardNEl = document.getElementById("cardN");
-const correctEl = document.getElementById("correctN");
-const streakEl = document.getElementById("streak");
-const progEl = document.getElementById("prog");
-
-const modal = document.getElementById("modal");
-const panel = document.getElementById("panel");
-const confetti = document.getElementById("confetti");
-
-document.getElementById("highBtn").addEventListener("click", ()=>answer("high"));
-document.getElementById("modBtn").addEventListener("click",  ()=>answer("mod"));
-document.getElementById("lowBtn").addEventListener("click",  ()=>answer("low"));
-
-function shuffle(a){
-  const arr = [...a];
-  for (let i=arr.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]]=[arr[j],arr[i]];
+/* ---------- HELPERS (safe DOM building, no innerHTML for content) ---------- */
+const $ = (id) => document.getElementById(id);
+function el(tag, attrs, ...kids){
+  const n = document.createElement(tag);
+  if (attrs) for (const [k,v] of Object.entries(attrs)){
+    if (v == null || v === false) continue;
+    if (k === "class") n.className = v;
+    else if (k === "text") n.textContent = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v === true ? "" : v);
   }
-  return arr;
+  for (const c of kids.flat()){ if (c == null || c === false || c === "") continue; n.append(c.nodeType ? c : document.createTextNode(String(c))); }
+  return n;
+}
+function emojiImg(emoji, label, cls){ return el("div", { class:cls, role:"img", "aria-label":label, text:emoji }); }
+function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function shuffle(a, rng = Math.random){ const arr=[...a]; for (let i=arr.length-1;i>0;i--){ const j=Math.floor(rng()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+function todayStr(d = new Date()){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function mgText(mg){ return mg === 0 ? "0 mg" : "~" + mg + " mg"; }
+const pickOne = (a) => a[Math.floor(Math.random()*a.length)];
+const reduceMotion = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+/* ---------- SOUND + HAPTICS ---------- */
+let audioCtx = null;
+function beep(ok){
+  if (!save.settings.sound) return;
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain(), t = audioCtx.currentTime;
+    o.type = "sine"; o.frequency.value = ok ? 880 : 220;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.12, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+    o.connect(g).connect(audioCtx.destination); o.start(); o.stop(t + 0.27);
+  }catch(e){}
+}
+function haptic(kind){
+  if (!save.settings.haptics) return;
+  // When wrapped with Capacitor + @capacitor/haptics, use the native plugin.
+  const H = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics;
+  if (H){ try{ kind === "error" ? H.notification({ type:"ERROR" }) : H.impact({ style: kind === "success" ? "MEDIUM" : "LIGHT" }); }catch(e){} return; }
+  if (navigator.vibrate){ try{ navigator.vibrate(kind === "error" ? [40,60,40] : 25); }catch(e){} }
 }
 
-function buildRound(){
-  // 7 unique foods + 3 unique dinner plates (no repeats within the same level)
-  const foods = shuffle(FOODS).slice(0,7).map(f => ({type:"food", ...f}));
-  const plates = pickUniqueMeals(3).map(m => ({type:"meal", ...m}));
-  return shuffle([...foods, ...plates]);
+/* ---------- GAME STATE ---------- */
+let mode = "journey";            // "journey" | "daily"
+let level = 1, round = [], idx = 0, correct = 0, streak = 0;
+let state = "idle";              // "question" | "revealed" | "idle"
+const sessionSeen = new Set();   // avoid repeats within a session
+let teardownCard = null;
+
+const stackEl = $("stack"), toastEl = $("toast"), liveEl = $("live"), progEl = $("prog");
+const modal = $("modal"), panel = $("panel"), confetti = $("confetti");
+
+function pickFrom(pool, n){
+  const fresh = shuffle(pool.filter(c => !sessionSeen.has(c.id)));
+  const used = shuffle(pool.filter(c => sessionSeen.has(c.id)));
+  const out = [...fresh, ...used].slice(0, n);
+  out.forEach(c => sessionSeen.add(c.id));
+  return out;
+}
+function buildRound(lv){
+  const f = (l) => FOODS.filter(x => x.lvl === l);
+  const meals3 = MEALS.filter(m => m.lvl === 3);
+  let cards;
+  if (lv === 1) cards = pickFrom(f(1), 10);
+  else if (lv === 2) cards = [...pickFrom(f(2), 7), ...pickFrom(f(1), 3)];
+  else if (lv === 3) cards = [...pickFrom(meals3, 5), ...pickFrom(f(3), 5)];
+  else if (lv === 4) cards = [...pickFrom(COMPARES.filter(c => c.lvl === 4), 5), ...pickFrom(meals3, 2), ...pickFrom([...f(2), ...f(3)], 3)];
+  else cards = [...pickFrom(f(5), 5), ...pickFrom(COMPARES.filter(c => c.lvl === 5), 2), ...pickFrom(COMPARES, 1), ...pickFrom(MEALS, 2)];
+  return shuffle(cards);
+}
+function buildDaily(){
+  const rng = mulberry32(parseInt(todayStr().replace(/-/g,""), 10));
+  return shuffle([...shuffle(FOODS, rng).slice(0,6), ...shuffle(MEALS, rng).slice(0,2), ...shuffle(COMPARES, rng).slice(0,2)], rng);
 }
 
-function hudUpdate(){
-  levelEl.textContent = level;
-  cardNEl.textContent = (idx+1);
-  correctEl.textContent = correct;
-  streakEl.textContent = streak;
-  progEl.style.width = Math.round((idx/10)*100) + "%";
+/* ---------- SCREENS ---------- */
+const SCREENS = ["startScreen","gameScreen","statsScreen","aboutScreen"];
+function show(id){
+  SCREENS.forEach(s => $(s).hidden = (s !== id));
+  $("hud").hidden = (id !== "gameScreen");
+  modal.style.display = "none";
+  if (id !== "gameScreen"){ $("subtitle").textContent = "Potassium Journey"; }
+  if (id === "startScreen") refreshStart();
+  if (id === "statsScreen") renderStats();
+  if (id !== "gameScreen"){ const h = $(id).querySelector("h2"); if (h){ h.tabIndex = -1; h.focus({ preventScroll:true }); } window.scrollTo(0,0); }
 }
-
-function funCorrectLine(){
-  const lines = [
-    "Nice call. You spotted the potassium trap before it spotted you. 👀",
-    "Correct — and that’s exactly how labels and meals should be judged. 🧠",
-    "Well played. Most people miss the sides and sauces. You didn’t. 👏",
-    "That choice keeps potassium surprises away from your labs. 🧪",
-    "Solid decision. Your kidneys quietly approve. 👍",
-    "Clean pick. You’re learning the patterns, not memorizing trivia. 📊",
-  ];
-
-  if (streak >= 3)
-    lines.push("🔥 Streak alert. You’re reading meals like a pro now.");
-
-  if (streak >= 5)
-    lines.push("😎 At this point, potassium is the one getting nervous.");
-
-  return lines[Math.floor(Math.random() * lines.length)];
+function refreshStart(){
+  const u = Math.min(save.unlocked, MAX_LEVEL);
+  applyLevelTheme(u);
+  $("continueBtn").textContent = u > 1 ? `Continue: Level ${u} · ${LEVELS[u-1].theme}` : "Start Level 1";
+  $("newJourneyBtn").hidden = u <= 1;
+  const done = save.daily.last === todayStr();
+  $("dailyBtn").textContent = done ? `📅 Daily done today (${save.daily.lastScore}/10) · 🔥 ${save.daily.streak}`
+                                   : `📅 Daily Challenge${save.daily.streak ? " · 🔥 " + save.daily.streak : ""}`;
+  $("soundToggle").setAttribute("aria-pressed", String(save.settings.sound));
+  $("hapticsToggle").setAttribute("aria-pressed", String(save.settings.haptics));
 }
-
-function funWrongLine(){
-  const lines = [
-    "Not quite — but this one fools a lot of people.",
-    "Close, but something sneaky pushed the potassium higher.",
-    "That plate looks innocent… until you notice the sides.",
-    "Common mistake. Sauces and potatoes are frequent offenders.",
-    "Missed it this time — but you’ll remember this one.",
-    "This is exactly why guessing by ‘healthy-looking’ doesn’t work.",
-  ];
-
-  return lines[Math.floor(Math.random() * lines.length)];
-}
-
-function showToast(ok, teach){
-  toastEl.style.display = "block";
-  toastEl.className = "toast " + (ok ? "good" : "bad");
-
-  const coachLine = ok ? funCorrectLine() : funWrongLine();
-
-  toastEl.innerHTML = `
-    <div><b>${ok ? "✅ Correct" : "❌ Not quite"}</b></div>
-    <div style="margin-top:4px;">${teach}</div>
-    <div style="margin-top:6px;color:#cbd5e1;">
-      ${coachLine}
-    </div>
-  `;
-}
-
-function makeConfettiBurst(){
-  const emojis = ["✨","🎉","⭐️","💥","👏","🫶","🏆","🔥"];
-  for (let i=0;i<16;i++){
-    const d = document.createElement("div");
-    d.className = "conf";
-    d.textContent = emojis[Math.floor(Math.random()*emojis.length)];
-    d.style.left = (8 + Math.random()*84) + "%";
-    d.style.top = (8 + Math.random()*18) + "%";
-    d.style.animationDelay = (Math.random()*140) + "ms";
-    confetti.appendChild(d);
-    setTimeout(()=>d.remove(), 1000);
-  }
-}
-
-function renderCard(){
-  stackEl.innerHTML = "";
-  toastEl.style.display = "none";
-
-  const c = round[idx];
-  hudUpdate();
-
-  const card = document.createElement("div");
-  card.className = "card";
-
-  const overlays = `
-    <div class="overlay left" id="ovLeft">HIGH</div>
-    <div class="overlay up" id="ovUp">MODERATE</div>
-    <div class="overlay right" id="ovRight">LOW</div>
-  `;
-
-  const top = `
-    <div class="badgeRow">
-      <div class="pill">Level ${level} • Card ${idx+1}/10</div>
-      <div class="pill pill2">${c.type === "meal" ? "Comfort Plate" : "Food"}</div>
-    </div>
-  `;
-
-  let media = "";
-// Emoji-only mode (Option A): always render emojis so patients never see the wrong food image.
-const emoji = (c.type==="meal") ? (c.emoji || "🍽️") : (c.emoji || "🍴");
-media = `<div class="emojiTile">${emoji}</div>`;
-const name = (c.type==="meal")
-    ? c.name
-    : (c.name || (SPRITES[c.key]?.label ?? "Food"));
-
-  const prompt = (c.type==="meal")
-    ? "Overall, is this comfort plate high, moderate, or low potassium?"
-    : "Is this item high, moderate, or low potassium?";
-
-  let mid = `
-    <div class="content">
-      ${media}
-      <div class="name">${name}</div>
-      <div class="prompt">${prompt}</div>
-    </div>
-  `;
-
-  if (c.type==="meal"){
-    const list = c.parts.map(p => `<div class="mealItem"><span>${p.t}</span><small>${p.k}</small></div>`).join("");
-    mid += `<div class="mealList">${list}</div>`;
-  }
-
-  const hint = `
-    <div style="font-size:12px;color:#64748b;text-align:center;">
-      Boss-fight ingredients: potatoes 🥔, marinara 🍅, beans 🫘, dried fruit 🍑, coconut water 🥥.
-    </div>
-  `;
-
-  card.innerHTML = overlays + top + mid + hint;
-  stackEl.appendChild(card);
-
-  enableSwipe(card);
-}
-
-function answer(choice){
-  if (busy) return;
-  busy = true;
-
-  const c = round[idx];
-  const ok = (choice === c.cat);
-
-  if (ok){ correct += 1; streak += 1; }
-  else { streak = 0; }
-
-  showToast(ok, c.teach);
-
-  const card = stackEl.querySelector(".card");
-  if (card){
-    if (choice === "high") card.style.transform = "translateX(-160%) rotate(-12deg)";
-    if (choice === "low")  card.style.transform = "translateX(160%) rotate(12deg)";
-    if (choice === "mod")  card.style.transform = "translateY(-160%) rotate(0deg)";
-    card.style.opacity = "0";
-  }
-
-  if (ok && (streak === 3 || streak === 5 || streak === 7)){
-    makeConfettiBurst();
-  }
-
-  setTimeout(()=>{
-    idx += 1;
-    busy = false;
-
-    if (idx >= 10){
-      endOfLevel();
-    } else {
-      renderCard();
-    }
-  }, 2520);
-}
-
-function endOfLevel(){
-  const passed = (correct >= PASS_SCORE);
-  const currentRank = LEVELS[level-1];
-  const nextRank = LEVELS[Math.min(level, MAX_LEVEL-1)];
-
-  const passLines = [
-    "Rank up unlocked. Potassium is now your side quest. 🗺️",
-    "You passed. Congratulations — you’re officially hard to trick. 😎",
-    `That’s ${correct}/10. Your label-reading aura is growing. ✨`,
-    "You cleared the level. Marinara is trembling. 🍅😰",
-  ];
-  const failLines = [
-    "Not enough to rank up… yet. Run it back and bully these foods. 😈",
-    "Close! Repeat the level and reclaim the throne. 👑",
-    "The fries got lucky. Try again. 🍟🙃",
-    "You’re learning — do another round and you’ll pass easy. 🔁",
-  ];
-
-  const headline = passed ? "RANK UP ✅" : "LEVEL RETRY 🧠";
-  const big = `${correct}/10`;
-  const rule = `Rule: get <b>${PASS_SCORE}/10</b> to advance.`;
-  const line = passed
-    ? passLines[Math.floor(Math.random()*passLines.length)]
-    : failLines[Math.floor(Math.random()*failLines.length)];
-
-  const rankLine = passed
-    ? `<div class="rankLine"><span class="rankTag">${currentRank.emoji} ${currentRank.name}</span> → <span class="rankTag">${nextRank.emoji} ${nextRank.name}</span></div>`
-    : `<div class="rankLine"><span class="rankTag">${currentRank.emoji} ${currentRank.name}</span> <span style="opacity:.8;">(hold the line)</span></div>`;
-
-  panel.innerHTML = `
-    <h2>${headline}</h2>
-    <div class="big">${big}</div>
-    ${rankLine}
-    <p>${line}</p>
-    <p style="opacity:.95;">${rule}</p>
-    <p style="color:#cbd5f5;opacity:.95;">${LEVELS[level-1].vibe}</p>
-    <div class="btnRow">
-      <button id="nextBtn">${passed ? (level < MAX_LEVEL ? "Continue Journey" : "Finish Journey") : "Try Again"}</button>
-      <button class="secondary" id="resetBtn">Reset Game</button>
-    </div>
-  `;
-
-  modal.style.display = "flex";
-  if (passed) makeConfettiBurst();
-
-  document.getElementById("nextBtn").onclick = () => {
-    modal.style.display = "none";
-    if (passed){
-      if (level < MAX_LEVEL){
-        level += 1;
-        applyLevelTheme(level);
-        startLevel();
-      } else {
-        showWinScreen();
-      }
-    } else {
-      startLevel(); // repeat same level
-    }
-  };
-
-  document.getElementById("resetBtn").onclick = () => {
-    modal.style.display = "none";
-    level = 1;
-    applyLevelTheme(level);
-    startLevel();
-  };
-}
-
-function showWinScreen(){
-  const guru = LEVELS[MAX_LEVEL-1];
-  panel.innerHTML = `
-    <h2>JOURNEY COMPLETE 🏆</h2>
-    <div class="big">${guru.emoji}</div>
-    <p><b>${guru.name} status achieved.</b> Potassium now asks <i>you</i> for permission.</p>
-    <p style="color:#cbd5f5;opacity:.95;">
-      High potassium often hides in potatoes, marinara/tomato sauce, beans, dried fruit,
-      coconut water/juice, and big portions of cooked greens. “Moderate” is portion + preparation territory.
-    </p>
-    <div class="btnRow">
-      <button id="playAgainBtn">Play Again</button>
-      <button class="secondary" id="closeBtn">Close</button>
-    </div>
-  `;
-  modal.style.display = "flex";
-  makeConfettiBurst();
-
-  document.getElementById("playAgainBtn").onclick = () => {
-    modal.style.display = "none";
-    level = 1;
-    applyLevelTheme(level);
-    startLevel();
-  };
-  document.getElementById("closeBtn").onclick = () => {
-    modal.style.display = "none";
-  };
+function applyLevelTheme(lv){
+  const t = LEVELS[lv-1], r = document.documentElement.style;
+  r.setProperty("--bgA", t.bgA); r.setProperty("--bgB", t.bgB); r.setProperty("--accent1", t.a1); r.setProperty("--accent2", t.a2);
+  $("rankPill").replaceChildren(el("span", { "aria-hidden":"true", text:t.emoji }), el("b", { text:t.name }));
 }
 
 function startLevel(){
-  round = buildRound(); // 7 foods + 3 comfort plates
-  idx = 0;
-  correct = 0;
-  streak = 0;
-  progEl.style.width = "0%";
-  toastEl.style.display = "none";
-  hudUpdate();
+  mode = "journey";
+  round = buildRound(level);
+  applyLevelTheme(level);
+  $("hudMode").replaceChildren("Level ", el("b", { id:"level", text:level }), "/5");
+  beginRound(`Level ${level}: ${LEVELS[level-1].theme}`);
+}
+function startDaily(){
+  mode = "daily";
+  round = buildDaily();
+  $("hudMode").replaceChildren(el("b", { text:"Daily" }));
+  beginRound("Daily Challenge · " + todayStr());
+}
+function beginRound(sub){
+  idx = 0; correct = 0; streak = 0;
+  show("gameScreen");
+  $("subtitle").textContent = sub;
   renderCard();
 }
-
-function enableSwipe(card){
-  let startX=0, startY=0, dx=0, dy=0, dragging=false;
-
-  const ovLeft  = card.querySelector("#ovLeft");
-  const ovUp    = card.querySelector("#ovUp");
-  const ovRight = card.querySelector("#ovRight");
-
-  const onDown = (e) => {
-    if (busy) return;
-    dragging = true;
-    card.style.transition = "none";
-    startX = e.clientX; startY = e.clientY;
-    dx = 0; dy = 0;
-  };
-
-  const onMove = (e) => {
-    if (!dragging) return;
-    dx = e.clientX - startX;
-    dy = e.clientY - startY;
-
-    const rot = Math.max(-15, Math.min(15, dx / 18));
-    card.style.transform = `translateX(${dx}px) translateY(${dy}px) rotate(${rot}deg)`;
-
-    const ax = Math.abs(dx), ay = Math.abs(dy);
-    ovLeft.style.opacity = 0; ovUp.style.opacity = 0; ovRight.style.opacity = 0;
-
-    if (ax > ay){
-      const a = Math.min(1, ax / 120);
-      if (dx < 0){ ovLeft.style.opacity = a; ovLeft.style.transform = `scale(${0.98 + a*0.04})`; }
-      else { ovRight.style.opacity = a; ovRight.style.transform = `scale(${0.98 + a*0.04})`; }
-    } else {
-      if (dy < 0){
-        const a = Math.min(1, ay / 120);
-        ovUp.style.opacity = a;
-        ovUp.style.transform = `translateX(-50%) scale(${0.98 + a*0.04})`;
-      }
-    }
-  };
-
-  const onUp = () => {
-    if (!dragging) return;
-    dragging = false;
-    card.style.transition = "transform .25s ease, opacity .25s ease";
-
-    const ax = Math.abs(dx), ay = Math.abs(dy);
-    if (ax > ay && dx <= -110) answer("high");
-    else if (ax > ay && dx >= 110) answer("low");
-    else if (ay >= ax && dy <= -110) answer("mod");
-    else {
-      card.style.transform = "translateX(0) translateY(0) rotate(0deg)";
-      ovLeft.style.opacity = 0; ovUp.style.opacity = 0; ovRight.style.opacity = 0;
-    }
-  };
-
-  card.addEventListener("pointerdown", onDown);
-  window.addEventListener("pointermove", onMove);
-  window.addEventListener("pointerup", onUp);
+function hudUpdate(){
+  $("cardN").textContent = idx + 1;
+  $("correctN").textContent = correct;
+  $("streak").textContent = streak;
+  progEl.style.width = Math.round((idx / PER_LEVEL) * 100) + "%";
+  $("progWrap").setAttribute("aria-valuenow", idx);
 }
 
-/* Prevent iOS gesture zoom weirdness */
-document.addEventListener("gesturestart", (e) => e.preventDefault());
+/* ---------- CARD RENDERING ---------- */
+function setControls(c){
+  const hi = $("highBtn"), md = $("modBtn"), lo = $("lowBtn");
+  if (c.type === "compare"){
+    hi.className = "btnA"; hi.replaceChildren("⬅ A is lower", el("small", { text:"swipe left" })); hi.setAttribute("aria-label", "A is lower (swipe left)");
+    lo.className = "btnA"; lo.replaceChildren("B is lower ➡", el("small", { text:"swipe right" })); lo.setAttribute("aria-label", "B is lower (swipe right)");
+    md.hidden = true;
+  } else {
+    hi.className = "btnHigh"; hi.replaceChildren("⬅ High", el("small", { text:"swipe left" })); hi.setAttribute("aria-label", "High potassium (swipe left)");
+    md.setAttribute("aria-label", "Moderate potassium (swipe up)");
+    lo.className = "btnLow"; lo.replaceChildren("Low ➡", el("small", { text:"swipe right" })); lo.setAttribute("aria-label", "Low potassium (swipe right)");
+    md.hidden = false;
+  }
+  [hi, md, lo].forEach(b => b.disabled = false);
+}
+function renderCard(){
+  if (teardownCard){ teardownCard(); teardownCard = null; }
+  stackEl.replaceChildren();
+  toastEl.hidden = true; toastEl.replaceChildren();
+  state = "question";
+  const c = round[idx];
+  hudUpdate(); setControls(c);
+
+  const isCmp = c.type === "compare";
+  const card = el("article", { class:"card", "aria-label": isCmp ? "Which is lower in potassium?" : `${c.name}${c.serving ? ", " + c.serving : ""}` });
+  if (isCmp) card.append(el("div", { class:"overlay left", "aria-hidden":"true", text:"A" }), el("div", { class:"overlay right", "aria-hidden":"true", text:"B" }));
+  else card.append(el("div", { class:"overlay left", "aria-hidden":"true", text:"HIGH" }), el("div", { class:"overlay up", "aria-hidden":"true", text:"MODERATE" }), el("div", { class:"overlay right", "aria-hidden":"true", text:"LOW" }));
+
+  card.append(el("div", { class:"badgeRow" },
+    el("div", { class:"pill", text: (mode === "daily" ? "Daily" : `Level ${level}`) + ` · Card ${idx+1}/10` }),
+    el("div", { class:"pill pill2", text: c.type === "meal" ? "Plate" : isCmp ? "Which is lower?" : "Food" })));
+
+  const content = el("div", { class:"content" });
+  if (isCmp){
+    content.append(el("div", { class:"name", text:"Which is lower in potassium?" }));
+    const mk = (o, L) => el("div", { class:"opt", "data-opt":L },
+      el("div", { class:"letter", text:L.toUpperCase() }), emojiImg(o.emoji, o.name, "e"),
+      el("div", { class:"n", text:o.name }), el("div", { class:"s", text:o.serving }));
+    content.append(el("div", { class:"compare" }, mk(c.a, "a"), mk(c.b, "b")));
+  } else {
+    content.append(emojiImg(c.emoji, c.name, "emojiTile"), el("div", { class:"name", text:c.name }));
+    if (c.serving) content.append(el("div", { class:"serving", text:"Serving: " + c.serving }));
+    content.append(el("div", { class:"prompt", text: c.type === "meal" ? "Overall, is this whole plate high, moderate, or low in potassium?" : "Is this high, moderate, or low in potassium?" }));
+    if (c.type === "meal"){
+      // Ingredient levels stay hidden until the player answers.
+      content.append(el("div", { class:"mealList" }, c.parts.map(p => el("div", { class:"mealItem" }, el("span", { text:p.t }), el("span", { class:"tag " + p.k, hidden:true, text:CAT_LABEL[p.k] })))));
+    }
+  }
+  card.append(content);
+  card.append(el("div", { class:"hint", text:"Watch for: potatoes 🥔, tomato sauce 🍅, beans 🫘, dried fruit 🍇, salt substitutes 🧂" }));
+  stackEl.append(card);
+  teardownCard = enableSwipe(card, c);
+}
+
+function choiceToAnswer(c, dir){
+  if (!c) return null;
+  if (c.type === "compare") return dir === "left" ? "a" : dir === "right" ? "b" : null;
+  return { left:"high", up:"mod", right:"low" }[dir];
+}
+
+function answer(choice){
+  if (state !== "question" || !choice) return;
+  state = "revealed";
+  const c = round[idx];
+  const ok = choice === (c.type === "compare" ? c.lower : c.cat);
+  if (ok){ correct++; streak++; } else streak = 0;
+  save.stats.answered++; if (ok) save.stats.correct++; persist();
+  hudUpdate();
+  beep(ok); haptic(ok ? "success" : "error");
+  if (ok && (streak === 3 || streak === 5 || streak === 7)) makeConfettiBurst();
+  [$("highBtn"), $("modBtn"), $("lowBtn")].forEach(b => b.disabled = true);
+  revealCard(c);
+  showFeedback(c, ok);
+}
+
+function revealCard(c){
+  const card = stackEl.querySelector(".card"); if (!card) return;
+  card.style.transition = "transform .2s ease"; card.style.transform = "none";
+  card.querySelectorAll(".overlay").forEach(o => o.style.opacity = 0);
+  card.classList.add("revealed");
+  if (c.type === "compare"){
+    card.querySelectorAll(".opt").forEach(o => {
+      const L = o.dataset.opt;
+      o.append(el("div", { class:"mg", text: mgText(c[L].mg) }));
+      if (L === c.lower){ o.classList.add("win"); o.append(el("div", { class:"tag low", text:"Lower ✓" })); }
+    });
+  } else {
+    const v = el("div", { class:"verdict " + c.cat }, `${CAT_LABEL[c.cat]} potassium`,
+      el("small", { text: c.type === "meal" ? `About ${c.mg} mg for the whole plate` : `${mgText(c.mg)} per ${c.serving}` }));
+    card.querySelector(".prompt").replaceWith(v);
+    card.querySelectorAll(".mealItem .tag").forEach(t => t.hidden = false);
+  }
+}
+
+function showFeedback(c, ok){
+  toastEl.hidden = false;
+  toastEl.className = "toast " + (ok ? "good" : "bad");
+  const right = c.type === "compare" ? `${c.lower.toUpperCase()} (${c[c.lower].name}) is lower.` : `It's ${CAT_LABEL[c.cat].toLowerCase()}.`;
+  const next = el("button", { class:"nextBtn", id:"nextCardBtn", text: idx + 1 >= PER_LEVEL ? "See results" : "Next ➜",
+                              onclick:(e)=>{ e.stopPropagation(); nextCard(); } });
+  toastEl.replaceChildren(
+    el("div", {}, el("b", { text: ok ? "✅ Correct! " : "❌ Not quite. " }), right),
+    el("div", { style:"margin-top:.3rem", text:c.teach }),
+    el("div", { class:"coach", text: ok ? funCorrectLine() : funWrongLine() }),
+    el("div", { class:"row" }, el("span", { class:"tapnote", text:"Tap anywhere on the card to continue" }), next));
+  liveEl.textContent = (ok ? "Correct. " : "Not quite. ") + right + " " + c.teach;
+  next.focus({ preventScroll:true });
+}
+
+function nextCard(){
+  if (state !== "revealed") return;
+  state = "idle";
+  idx++;
+  if (idx >= PER_LEVEL){
+    if (teardownCard){ teardownCard(); teardownCard = null; }
+    progEl.style.width = "100%";
+    if (mode === "daily") endOfDaily(); else endOfLevel();
+  } else renderCard();
+}
+
+function funCorrectLine(){
+  const lines = ["Nice call. You spotted the potassium trap. 👀","That's exactly how meals should be judged. 🧠","Most people miss the sides and sauces. You didn't. 👏","Solid decision. Your kidneys quietly approve. 👍","You're learning the patterns, not memorizing trivia. 📊"];
+  if (streak >= 3) lines.push("🔥 Streak alert. You're reading meals like a pro.");
+  if (streak >= 5) lines.push("😎 At this point, potassium is the one getting nervous.");
+  return pickOne(lines);
+}
+function funWrongLine(){
+  return pickOne(["This one fools a lot of people.","Missed it this time, but you'll remember this one.","This is why guessing by 'healthy-looking' doesn't work.","Portion size changes everything."]);
+}
+function makeConfettiBurst(){
+  if (reduceMotion) return;
+  const emojis = ["✨","🎉","⭐️","💥","👏","🫶","🏆","🔥"];
+  for (let i=0;i<16;i++){
+    const d = el("div", { class:"conf", text: pickOne(emojis) });
+    d.style.left = (8 + Math.random()*84) + "%"; d.style.top = (8 + Math.random()*18) + "%"; d.style.animationDelay = (Math.random()*140) + "ms";
+    confetti.append(d); setTimeout(() => d.remove(), 1100);
+  }
+}
+
+/* ---------- END OF LEVEL / WIN / DAILY ---------- */
+function openModal(...kids){
+  panel.replaceChildren(...kids);
+  modal.style.display = "flex";
+  const b = panel.querySelector("button"); if (b) b.focus({ preventScroll:true });
+}
+function endOfLevel(){
+  const passed = correct >= PASS_SCORE;
+  save.stats.levelsPlayed++;
+  if (passed){ save.stats.levelsPassed++; save.unlocked = Math.max(save.unlocked, Math.min(level + 1, MAX_LEVEL)); }
+  const prevBest = save.best[level] || 0, newBest = correct > prevBest;
+  if (newBest) save.best[level] = correct;
+  if (passed && level === MAX_LEVEL) save.stats.journeys++;
+  persist();
+  if (passed && level === MAX_LEVEL){ showWinScreen(); return; }
+
+  const cur = LEVELS[level-1], nxt = LEVELS[Math.min(level, MAX_LEVEL-1)];
+  if (passed) makeConfettiBurst();
+  openModal(
+    el("h2", { id:"modalTitle", text: passed ? "RANK UP ✅" : "TRY AGAIN 🧠" }),
+    el("div", { class:"big", text:`${correct}/10` }),
+    el("p", { text: newBest ? "🏅 New best score for this level!" : `Best on this level: ${prevBest}/10` }),
+    el("div", { class:"rankLine" }, el("span", { class:"pillDark", text:`${cur.emoji} ${cur.name}` }),
+      passed ? "→" : null, passed ? el("span", { class:"pillDark", text:`${nxt.emoji} ${nxt.name}` }) : null),
+    el("p", { text: passed ? pickOne(["Rank up unlocked. 🗺️","You're officially hard to trick. 😎","Marinara is trembling. 🍅"])
+                           : pickOne(["Not enough to rank up yet. Run it back! 💪","Close! Repeat the level and claim the rank. 👑"]) }),
+    el("p", { text: passed ? `Next up: Level ${level+1}, ${LEVELS[level].theme}.` : `Get ${PASS_SCORE}/10 to advance.` }),
+    el("div", { class:"btnCol" },
+      el("button", { class:"bigBtn", id:"nextBtn", text: passed ? "Continue journey" : "Try again", onclick:() => { if (passed) level++; startLevel(); } }),
+      el("button", { class:"bigBtn secondary", id:"toStartBtn", text:"Back to start", onclick:() => show("startScreen") })));
+}
+function showWinScreen(){
+  const guru = LEVELS[MAX_LEVEL-1];
+  makeConfettiBurst();
+  openModal(
+    el("h2", { id:"modalTitle", text:"JOURNEY COMPLETE 🏆" }),
+    emojiImg(guru.emoji, guru.name, "big"),
+    el("p", {}, el("b", { text:`${guru.name} status achieved.` }), ` You scored ${correct}/10 on the final level.`),
+    el("p", { text:"High potassium often hides in potatoes, tomato sauce, beans, dried fruit, juices, coconut water, cooked greens, and salt substitutes. 'Moderate' is about portion and preparation." }),
+    el("div", { class:"btnCol" },
+      el("button", { class:"bigBtn", id:"playAgainBtn", text:"Play again from Level 1", onclick:() => { level = 1; sessionSeen.clear(); startLevel(); } }),
+      el("button", { class:"bigBtn secondary", id:"winDailyBtn", text:"📅 Daily Challenge", onclick:startDaily }),
+      el("button", { class:"bigBtn secondary", id:"closeBtn", text:"Back to start", onclick:() => show("startScreen") })));
+}
+function endOfDaily(){
+  const today = todayStr(), d = save.daily, first = d.last !== today;
+  if (first){
+    const y = new Date(); y.setDate(y.getDate() - 1);
+    d.streak = (d.last === todayStr(y)) ? d.streak + 1 : 1;
+    d.bestStreak = Math.max(d.bestStreak, d.streak);
+    d.last = today; d.lastScore = correct; save.stats.dailyPlayed++;
+    persist();
+  }
+  makeConfettiBurst();
+  openModal(
+    el("h2", { id:"modalTitle", text:"Daily Challenge done 📅" }),
+    el("div", { class:"big", text:`${correct}/10` }),
+    el("p", { text:`Daily streak: 🔥 ${d.streak} day${d.streak === 1 ? "" : "s"} (best ${d.bestStreak})` }),
+    el("p", { text: first ? "Come back tomorrow for 10 new cards." : "Replays don't change today's score or streak." }),
+    el("div", { class:"btnCol" },
+      el("button", { class:"bigBtn", id:"toStartBtn", text:"Back to start", onclick:() => show("startScreen") }),
+      el("button", { class:"bigBtn secondary", id:"dailyStatsBtn", text:"📊 Stats", onclick:() => show("statsScreen") })));
+}
+
+/* ---------- STATS ---------- */
+function renderStats(){
+  const s = save.stats, acc = s.answered ? Math.round(100 * s.correct / s.answered) : 0;
+  const stat = (v, l) => el("div", { class:"stat" }, el("b", { text:v }), el("span", { text:l }));
+  $("statsPanel").replaceChildren(
+    el("h2", { id:"statsTitle", text:"📊 Your stats" }),
+    el("div", { class:"statGrid" },
+      stat(s.answered, "Cards answered"), stat(acc + "%", "Accuracy"),
+      stat(`${s.levelsPassed}/${s.levelsPlayed}`, "Levels passed / played"), stat(s.journeys, "Journeys completed"),
+      stat("🔥 " + save.daily.streak, "Daily streak"), stat(save.daily.bestStreak, "Best daily streak")),
+    el("h3", { text:"Best score per level" }),
+    LEVELS.map((L, i) => el("div", { class:"levelRow" },
+      el("span", { text:`${L.emoji} ${i+1}. ${L.theme}` }),
+      el("b", { text: (i+1) > save.unlocked ? "🔒 locked" : (save.best[i+1] != null ? save.best[i+1] + "/10" : "not played") }))),
+    el("p", { text:"Stats are stored only on this device." }),
+    el("button", { class:"bigBtn secondary", id:"resetStatsBtn", text:"Reset progress & stats", onclick:() => {
+      if (confirm("Reset all progress and stats on this device?")){ const st = save.settings; save = defaultSave(); save.settings = st; persist(); renderStats(); }
+    } }));
+}
+
+/* ---------- SWIPE: per-card listeners, all removed on teardown ---------- */
+function enableSwipe(card, c){
+  let startX=0, startY=0, dx=0, dy=0, dragging=false, pid=null, suppressClick=false;
+  const isCmp = c.type === "compare";
+  const ov = { left:card.querySelector(".overlay.left"), up:card.querySelector(".overlay.up"), right:card.querySelector(".overlay.right") };
+  const clearOv = () => Object.values(ov).forEach(o => { if (o) o.style.opacity = 0; });
+  const snapBack = () => { card.style.transition = "transform .25s ease"; card.style.transform = "none"; clearOv(); };
+  const onDown = (e) => {
+    if (state !== "question") return;
+    dragging = true; pid = e.pointerId; card.style.transition = "none";
+    startX = e.clientX; startY = e.clientY; dx = dy = 0;
+  };
+  const onMove = (e) => {
+    if (!dragging || e.pointerId !== pid) return;
+    dx = e.clientX - startX; dy = e.clientY - startY;
+    const rot = Math.max(-15, Math.min(15, dx / 18));
+    card.style.transform = `translateX(${dx}px) translateY(${isCmp ? dy * 0.3 : dy}px) rotate(${rot}deg)`;
+    clearOv();
+    const ax = Math.abs(dx), ay = Math.abs(dy);
+    if (ax > ay){ const o = dx < 0 ? ov.left : ov.right; if (o) o.style.opacity = Math.min(1, ax / 120); }
+    else if (dy < 0 && ov.up) ov.up.style.opacity = Math.min(1, ay / 120);
+  };
+  const onUp = (e) => {
+    if (!dragging || e.pointerId !== pid) return;
+    dragging = false; pid = null;
+    suppressClick = Math.abs(dx) > 10 || Math.abs(dy) > 10; // a drag is not a tap
+    const ax = Math.abs(dx), ay = Math.abs(dy);
+    let dir = null;
+    if (ax > ay && dx <= -110) dir = "left";
+    else if (ax > ay && dx >= 110) dir = "right";
+    else if (!isCmp && ay >= ax && dy <= -110) dir = "up";
+    if (dir) answer(choiceToAnswer(c, dir)); else snapBack();
+  };
+  const onCancel = () => { if (!dragging) return; dragging = false; pid = null; snapBack(); };
+  const onClick = () => { if (suppressClick){ suppressClick = false; return; } if (state === "revealed") nextCard(); };
+  card.addEventListener("pointerdown", onDown);
+  card.addEventListener("click", onClick);
+  window.addEventListener("pointermove", onMove);
+  window.addEventListener("pointerup", onUp);
+  window.addEventListener("pointercancel", onCancel);
+  return function teardown(){
+    card.removeEventListener("pointerdown", onDown);
+    card.removeEventListener("click", onClick);
+    window.removeEventListener("pointermove", onMove);
+    window.removeEventListener("pointerup", onUp);
+    window.removeEventListener("pointercancel", onCancel);
+  };
+}
+
+/* ---------- WIRING ---------- */
+$("highBtn").addEventListener("click", () => answer(choiceToAnswer(round[idx], "left")));
+$("modBtn").addEventListener("click",  () => answer(choiceToAnswer(round[idx], "up")));
+$("lowBtn").addEventListener("click",  () => answer(choiceToAnswer(round[idx], "right")));
+toastEl.addEventListener("click", () => nextCard());
+$("continueBtn").addEventListener("click", () => { level = Math.min(save.unlocked, MAX_LEVEL); startLevel(); });
+$("newJourneyBtn").addEventListener("click", () => { level = 1; sessionSeen.clear(); startLevel(); });
+$("dailyBtn").addEventListener("click", startDaily);
+$("statsBtn").addEventListener("click", () => show("statsScreen"));
+$("aboutBtn").addEventListener("click", () => show("aboutScreen"));
+$("homeBtn").addEventListener("click", () => { if (teardownCard){ teardownCard(); teardownCard = null; } state = "idle"; show("startScreen"); });
+document.querySelectorAll(".backBtn").forEach(b => b.addEventListener("click", () => show("startScreen")));
+$("soundToggle").addEventListener("click", () => { save.settings.sound = !save.settings.sound; persist(); refreshStart(); });
+$("hapticsToggle").addEventListener("click", () => { save.settings.haptics = !save.settings.haptics; persist(); refreshStart(); haptic("light"); });
+document.addEventListener("keydown", (e) => {
+  if ($("gameScreen").hidden || modal.style.display === "flex") return;
+  if (state === "question"){
+    const dir = { ArrowLeft:"left", ArrowUp:"up", ArrowRight:"right" }[e.key];
+    if (dir){ e.preventDefault(); answer(choiceToAnswer(round[idx], dir)); }
+  } else if (state === "revealed" && (e.key === "Enter" || e.key === " ") && e.target.id !== "nextCardBtn"){
+    e.preventDefault(); nextCard();
+  }
+});
 
 /* ---------- BOOT ---------- */
-(async function boot(){
-  await checkSprite();     // spriteAvailable true/false
-  applyLevelTheme(level);  // Level 1 theme
-  startLevel();
-})();
+show("startScreen");
+if ("serviceWorker" in navigator && location.protocol !== "file:"){
+  window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
+}
 </script>
 </body>
 </html>
