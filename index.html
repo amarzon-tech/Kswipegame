@@ -39,6 +39,7 @@
   .app{ width:min(32.5rem,100%); min-height:100dvh; display:flex; flex-direction:column; padding:.875rem .875rem 1rem; gap:.625rem; }
   [hidden]{ display:none !important; }
   .screen{ display:flex; flex-direction:column; gap:.75rem; flex:1; }
+  .screen > .bigBtn{ flex:0 0 auto; }
   :focus-visible{ outline:3px solid #fbbf24; outline-offset:2px; }
   h2[tabindex="-1"]:focus{ outline:none; }
   .sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
@@ -787,7 +788,7 @@ function renderStats(){
       stat(`${s.levelsPassed}/${s.levelsPlayed}`, "Levels passed / played"), stat(s.journeys, "Journeys completed"),
       stat("🔥 " + save.daily.streak, "Daily streak"), stat(save.daily.bestStreak, "Best daily streak")),
     el("h3", { text:"Best score per level" }),
-    LEVELS.map((L, i) => el("div", { class:"levelRow" },
+    ...LEVELS.map((L, i) => el("div", { class:"levelRow" },
       el("span", { text:`${L.emoji} ${i+1}. ${L.theme}` }),
       el("b", { text: (i+1) > save.unlocked ? "🔒 locked" : (save.best[i+1] != null ? save.best[i+1] + "/10" : "not played") }))),
     el("p", { text:"Stats are stored only on this device." }),
