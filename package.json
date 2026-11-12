@@ -1,9 +1,9 @@
 {
   "name": "kswipe",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "",
   "scripts": {
-    "ios:sync": "rm -rf www && mkdir -p www && cp -R index.html privacy.html manifest.json sw.js favicon.ico icons www/ && npx cap sync ios && sh scripts/restore-vendored-haptics.sh",
+    "ios:sync": "rm -rf www && mkdir -p www && cp -R index.html privacy.html manifest.json sw.js favicon.ico icons images CREDITS.md www/ && npx cap sync ios && sh scripts/restore-vendored-haptics.sh",
     "ios:open": "npx cap open ios"
   },
   "keywords": [],

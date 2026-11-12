@@ -97,6 +97,22 @@
   .content{ display:flex; flex-direction:column; align-items:center; gap:.4rem; }
   .emojiTile{ width:7.5rem; height:7.5rem; border-radius:1.5rem; background:#f1f5f9; box-shadow:0 .75rem 1.6rem rgba(15,23,42,.15);
     display:grid; place-items:center; font-size:3.9rem; }
+  /* --- food photos (v1.2) --- */
+  .photoWrap{
+    width:100%; max-width:22rem; margin:0 auto; border-radius:1.25rem; overflow:hidden;
+    background:#e2e8f0; aspect-ratio:4/3; max-height:32vh; position:relative;
+    flex:0 1 auto; min-height:88px; transition:max-height .2s ease;
+  }
+  .photoWrap img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .photoWrap .emojiFallback{ display:none; width:100%; height:100%; align-items:center; justify-content:center; font-size:4rem; background:#f1f5f9; }
+  .photoWrap.img-error .emojiFallback{ display:flex; }
+  .photoWrap.img-error img{ display:none; }
+  .card.has-meal .photoWrap{ max-height:22vh; min-height:80px; }
+  .opt .photoWrap{ aspect-ratio:4/3; max-height:16vh; min-height:72px; border-radius:.85rem; margin:.2rem auto; max-width:100%; width:100%; }
+  .card.revealed .photoWrap{ max-height:18vh; min-height:64px; }
+  .card.revealed.has-meal .photoWrap{ max-height:14vh; min-height:56px; }
+  .card.revealed .opt .photoWrap{ max-height:12vh; min-height:56px; }
+  .content{ width:100%; }
   .name{ font-size:1.5rem; font-weight:900; letter-spacing:-.02em; text-align:center; }
   .serving{ font-size:16px; color:var(--muted); font-weight:700; text-align:center; }
   .prompt{ font-size:16px; color:var(--muted); text-align:center; max-width:28rem; }
@@ -215,6 +231,14 @@
     #startScreen .bigBtn{ padding:.75rem .5rem; }
     .emojiTile{ width:5.5rem; height:5.5rem; font-size:2.8rem; }
     .card.revealed .emojiTile{ width:3.6rem; height:3.6rem; font-size:1.9rem; }
+    .photoWrap{ max-height:20vh; min-height:72px; }
+    .card.has-meal .photoWrap{ max-height:15vh; min-height:64px; }
+    .opt .photoWrap{ max-height:12vh; min-height:60px; }
+    .card.revealed .photoWrap{ max-height:13vh; min-height:52px; }
+    .card.revealed.has-meal .photoWrap{ max-height:10vh; min-height:48px; }
+    .card.revealed .opt .photoWrap{ max-height:10vh; min-height:48px; }
+    .card{ padding:.75rem .85rem .9rem; }
+    .content{ gap:.3rem; }
     .name{ font-size:1.3rem; }
     .card.revealed .name{ font-size:1.15rem; }
     .toast{ padding:.55rem .75rem; }
@@ -239,6 +263,9 @@
     html{ font-size:112.5%; }
     .app{ width:min(58rem, 100%); padding:1.15rem 1.5rem 1rem; gap:.85rem; }
     .emojiTile{ width:9rem; height:9rem; font-size:5rem; }
+    .photoWrap{ max-height:36vh; max-width:28rem; }
+    .card.has-meal .photoWrap{ max-height:26vh; }
+    .opt .photoWrap{ max-height:18vh; }
     .name{ font-size:1.75rem; }
     .title h1{ font-size:1.5rem; }
     .about-grid{ display:grid; grid-template-columns:1fr 1fr; gap:1.15rem 2rem; align-items:start; }
@@ -265,6 +292,11 @@
     #gameScreen .toast{ grid-column:2; grid-row:3; align-self:end; max-height:40dvh; overflow:auto; }
     #gameScreen .sr-only{ position:absolute; }
     .emojiTile{ width:7rem; height:7rem; font-size:3.6rem; }
+    .photoWrap{ max-height:42vh; }
+    .card.has-meal .photoWrap{ max-height:28vh; }
+    .opt .photoWrap{ max-height:22vh; }
+    .card.revealed .photoWrap{ max-height:24vh; }
+    .card.revealed.has-meal .photoWrap{ max-height:20vh; }
   }
   @media (prefers-reduced-motion: reduce){
     *{ transition:none !important; animation:none !important; }
@@ -606,6 +638,33 @@ function el(tag, attrs, ...kids){
   return n;
 }
 function emojiImg(emoji, label, cls){ return el("div", { class:cls, role:"img", "aria-label":label, text:emoji }); }
+function foodImg(id){ return "images/food-" + id + ".webp"; }
+function mealImg(id){ return "images/meal-" + id + ".webp"; }
+/* Compare options have no food id of their own; map each side to a bundled photo. */
+const CMP_IMG = {
+  "cmp-potato":["baked-potato","leached-potato"],
+  "cmp-banana-apple":["apple","banana"],
+  "cmp-juice":["oj","cranberry-juice"],
+  "cmp-salt":["regular-salt","salt-substitute"],
+  "cmp-drinks":["cola","coconut-water"],
+  "cmp-grains":["white-rice","quinoa"],
+  "cmp-snacks":["pretzels","chips"],
+  "cmp-grapes":["raisins","grapes"],
+  "cmp-sauce":["tomato-sauce","garlic-olive-oil"],
+  "cmp-milk":["milk","rice-milk"],
+  "cmp-greens":["spinach-cooked","lettuce"],
+  "cmp-beans":["beans","green-beans"],
+  "cmp-nuts":["almonds","popcorn"],
+  "cmp-melon":["watermelon","cantaloupe"],
+  "cmp-v8":["veg-juice","low-sodium-veg-juice"]
+};
+function photoEl(src, alt, fallbackEmoji){
+  const img = el("img", { src, alt: alt || "", loading:"lazy", width:"640", height:"480" });
+  const fb = el("div", { class:"emojiFallback", "aria-hidden":"true", text: fallbackEmoji || "🍽️" });
+  const wrap = el("div", { class:"photoWrap" }, img, fb);
+  img.addEventListener("error", () => wrap.classList.add("img-error"));
+  return wrap;
+}
 function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 function shuffle(a, rng = Math.random){ const arr=[...a]; for (let i=arr.length-1;i>0;i--){ const j=Math.floor(rng()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
 function todayStr(d = new Date()){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
@@ -771,7 +830,7 @@ function renderCard(){
   hudUpdate(); setControls(c);
 
   const isCmp = c.type === "compare";
-  const card = el("article", { class:"card", "aria-label": isCmp ? "Which is lower in potassium?" : `${c.name}${c.serving ? ", " + c.serving : ""}` });
+  const card = el("article", { class:"card" + (c.type === "meal" ? " has-meal" : ""), "aria-label": isCmp ? "Which is lower in potassium?" : `${c.name}${c.serving ? ", " + c.serving : ""}` });
   if (isCmp) card.append(el("div", { class:"overlay left", "aria-hidden":"true", text:"A" }), el("div", { class:"overlay right", "aria-hidden":"true", text:"B" }));
   else card.append(el("div", { class:"overlay left", "aria-hidden":"true", text:"HIGH" }), el("div", { class:"overlay up", "aria-hidden":"true", text:"MODERATE" }), el("div", { class:"overlay right", "aria-hidden":"true", text:"LOW" }));
 
@@ -782,12 +841,18 @@ function renderCard(){
   const content = el("div", { class:"content" });
   if (isCmp){
     content.append(el("div", { class:"name", text:"Which is lower in potassium?" }));
-    const mk = (o, L) => el("div", { class:"opt", "data-opt":L },
-      el("div", { class:"letter", text:L.toUpperCase() }), emojiImg(o.emoji, o.name, "e"),
-      el("div", { class:"n", text:o.name }), el("div", { class:"s", text:o.serving }));
-    content.append(el("div", { class:"compare" }, mk(c.a, "a"), mk(c.b, "b")));
+    const ids = CMP_IMG[c.id] || [];
+    const mk = (o, L, i) => {
+      const src = ids[i] ? foodImg(ids[i]) : null;
+      const pic = src ? photoEl(src, o.name, o.emoji) : emojiImg(o.emoji, o.name, "e");
+      return el("div", { class:"opt", "data-opt":L },
+        el("div", { class:"letter", text:L.toUpperCase() }), pic,
+        el("div", { class:"n", text:o.name }), el("div", { class:"s", text:o.serving }));
+    };
+    content.append(el("div", { class:"compare" }, mk(c.a, "a", 0), mk(c.b, "b", 1)));
   } else {
-    content.append(emojiImg(c.emoji, c.name, "emojiTile"), el("div", { class:"name", text:c.name }));
+    const src = c.type === "meal" ? mealImg(c.id) : foodImg(c.id);
+    content.append(photoEl(src, c.name, c.emoji), el("div", { class:"name", text:c.name }));
     if (c.serving) content.append(el("div", { class:"serving", text:"Serving: " + c.serving }));
     const prompt = el("div", { class:"prompt" });
     if (c.type === "meal"){
