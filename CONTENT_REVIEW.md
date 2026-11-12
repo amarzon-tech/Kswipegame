@@ -97,7 +97,7 @@ Counts: 98 food cards, 22 plates, 15 "which is lower?" cards (135 total).
 | 60 | new | 2 | 🍵 Tea, brewed | 1 cup (8 oz) | 90 | Low | Brewed tea is low in potassium. | USDA FoodData Central |
 | 61 | new | 2 | 🍫 Dark chocolate (70-85%) | 1 oz | 205 | Moderate | Dark chocolate is moderate per ounce; a whole bar is high. | USDA FoodData Central |
 | 62 | new | 2 | 🍫 Milk chocolate bar | 1.5 oz bar | 160 | Moderate | A regular milk chocolate bar is moderate. | USDA FoodData Central |
-| 63 | new | 2 | 🥔 Potato, leached (boiled & drained) | ½ cup diced | 160 | Moderate | Peeling, dicing, and boiling potatoes in lots of water, then draining, removes a good share of the potassium. It still counts, so keep portions small. | USDA FoodData Central |
+| 63 | new | 2 | 🥔 Potato, boiled and drained | ½ cup diced | 160 | Moderate | Peeling, dicing, and boiling potatoes in lots of water, then draining, removes a good share of the potassium. It still counts, so keep portions small. | USDA FoodData Central |
 | 64 | changed | 3 | 🍕 Cheese pizza | 1 slice | 180 | Moderate | One slice of pizza is moderate. Two slices push it close to high, so portion matters. | USDA FoodData Central |
 | 65 | kept | 3 | 🍟 French fries | medium order | 600 | High | Fries are potatoes in a big portion, so they are high. | USDA FoodData Central |
 | 66 | changed | 3 | 🥫 Canned chicken noodle soup | 1 cup | 200 | Moderate | Canned soups vary a lot. Tomato and bean soups are often high, and some 'low sodium' soups use potassium chloride. Read the label. | USDA FoodData Central |
