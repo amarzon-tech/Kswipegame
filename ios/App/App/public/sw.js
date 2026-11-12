@@ -5,7 +5,7 @@
    Fetch strategy: stale-while-revalidate — serve the cached copy immediately,
    then update the cache from the network for the next visit. If the network
    is down, the cached copy (or the precached index.html for navigations) is used. */
-const CACHE_VERSION = "k-swipe-v1.2.3";
+const CACHE_VERSION = "k-swipe-v1.2.4";
 const ASSETS = [
   "./",
   "./index.html",
@@ -182,21 +182,54 @@ self.addEventListener("fetch", (event) => {
   })());
 });
 
-async function backfillImages(){
-  const cache = await caches.open(CACHE_VERSION);
+let backfillRunning = false;
+let backfillQueued = false;
+
+async function countCachedImages(cache){
+  cache = cache || await caches.open(CACHE_VERSION);
+  let n = 0;
   for (const url of IMAGES){
-    try {
-      const hit = await cache.match(url, { ignoreSearch: true });
-      if (hit) continue;
-      const res = await fetch(url);
-      if (res && res.ok) await cache.put(url, res);
-    } catch (e) {}
-    await new Promise((r) => setTimeout(r, 80));
+    if (await cache.match(url, { ignoreSearch: true })) n++;
+  }
+  return n;
+}
+
+async function notifyBackfillProgress(cached){
+  const clients = await self.clients.matchAll({ includeUncontrolled:true, type:"window" });
+  for (const c of clients) c.postMessage({ type:"backfill-progress", cached, total: IMAGES.length });
+}
+
+async function backfillImages(){
+  if (backfillRunning){ backfillQueued = true; return; }
+  backfillRunning = true;
+  try {
+    do {
+      backfillQueued = false;
+      const cache = await caches.open(CACHE_VERSION);
+      for (const url of IMAGES){
+        try {
+          const hit = await cache.match(url, { ignoreSearch: true });
+          if (hit) continue;
+          const res = await fetch(url);
+          if (res && res.ok) await cache.put(url, res);
+        } catch (e) {}
+        await new Promise((r) => setTimeout(r, 80));
+      }
+      const cached = await countCachedImages(cache);
+      await notifyBackfillProgress(cached);
+    } while (backfillQueued && (await countCachedImages()) < IMAGES.length);
+  } finally {
+    backfillRunning = false;
   }
 }
 
 self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "backfill-images"){
     event.waitUntil(backfillImages());
+  } else if (event.data && event.data.type === "backfill-status"){
+    event.waitUntil((async () => {
+      const cached = await countCachedImages();
+      if (event.source) event.source.postMessage({ type:"backfill-progress", cached, total: IMAGES.length });
+    })());
   }
 });
