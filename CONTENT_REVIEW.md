@@ -29,8 +29,6 @@ Counts: 98 food cards, 22 plates, 15 "which is lower?" cards (135 total).
 - **apple**: Serving reduced to ½ cup slices; a whole medium apple is ~195 mg (moderate).
 - **collards**: Placed in level 5 as a "surprise low" green. Confirm you want this message.
 - **cola**: Rated low K with phosphorus note, per request.
-- **low-sodium-veg-juice**: Low-sodium V8-type juices list ~800-900 mg per cup on labels; 550 is a conservative middle estimate. Verify.
-- **cmp-v8**: Values from product labels (regular ~470, low-sodium ~900 mg per cup). Verify current labels.
 
 ## Food cards
 | # | Status | Level | Food | Serving | ~mg | Category | Teaching text | Source |
@@ -121,7 +119,7 @@ Counts: 98 food cards, 22 plates, 15 "which is lower?" cards (135 total).
 | 84 | new | 5 | 🥤 Sports drink (Gatorade-type) | 12 oz | 80 | Low | Most sports drinks are low in potassium, but brands vary. 'Electrolyte' and coconut-based drinks can be much higher. Check the label. | USDA FoodData Central |
 | 85 | new | 5 | 🥛 Chocolate milk | 1 cup | 420 | High | Milk plus cocoa makes chocolate milk high in potassium. | USDA FoodData Central |
 | 86 | new | 5 | 🥜 Pistachios | 1 oz (about 49) | 290 | High | Pistachios are one of the higher-potassium nuts. | USDA FoodData Central |
-| 87 | new | 5 | 🍅 Low-sodium tomato/vegetable juice | 1 cup | 550 | High | 'Low sodium' vegetable juices are often very high in potassium, partly from potassium chloride added to replace salt. | USDA FoodData Central |
+| 87 | new | 5 | 🍅 Low-sodium tomato/vegetable juice | 1 cup | 850 | High | 'Low sodium' vegetable juices are often very high in potassium, partly from potassium chloride added to replace salt. | USDA FoodData Central |
 | 88 | new | 5 | 🥩 'Enhanced' pork or chicken (solution added) | 3 oz | 400 | High | Meats labeled 'enhanced' or 'contains up to X% solution' may be injected with potassium salts. Check the label for 'potassium'. | Estimate; varies by product label |
 | 89 | new | 5 | 🥣 Raisin bran cereal | 1 cup | 360 | High | Bran plus raisins makes this cereal high in potassium. | USDA FoodData Central |
 | 90 | new | 5 | 🌴 Medjool dates | 2 dates | 335 | High | Dates are dried fruit, so they are high. | USDA FoodData Central |
@@ -179,7 +177,7 @@ Note: ingredient labels on plates now describe the item *as portioned on that pl
 | 12 | 4 | Kidney beans, ½ cup (~360 mg) | Green beans, ½ cup (~90 mg) | B | Green beans are pods, not dried beans, and are much lower. |
 | 13 | 4 | Almonds, 1 oz (~210 mg) | Popcorn, 3 cups (~90 mg) | B | Plain popcorn is the lower-potassium crunchy snack. |
 | 14 | 4 | Watermelon, ½ cup (~85 mg) | Cantaloupe, ½ cup (~215 mg) | A | Watermelon is lower than cantaloupe per half cup. |
-| 15 | 5 | Regular vegetable juice, 1 cup (~470 mg) | Low-sodium vegetable juice, 1 cup (~900 mg) | A | Surprise: the low-sodium version is often higher, because potassium chloride replaces salt. Both are high. |
+| 15 | 5 | Regular vegetable juice, 1 cup (~470 mg) | Low-sodium vegetable juice, 1 cup (~850 mg) | A | Surprise: the low-sodium version is often higher, because potassium chloride replaces salt. Both are high. |
 
 ## Removed from the original
 - "Water is always a safe drink choice" (replaced with fluid-limit wording).
