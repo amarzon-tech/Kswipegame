@@ -60,7 +60,7 @@
   #gameScreen{ overflow:hidden; }
   #gameScreen .topBars, #gameScreen .controls{ flex:0 0 auto; }
   #gameScreen .stack{ flex:1 1 0; min-height:0; }
-  #gameScreen .toast{ flex:0 1 auto; min-height:0; max-height:min(38dvh, 13.5rem); overflow-y:auto; }
+  #gameScreen .toast{ flex:0 1 auto; min-height:0; max-height:min(38dvh, 13.5rem); overflow:hidden; display:flex; flex-direction:column; }
   .screen > .bigBtn{ flex:0 0 auto; min-height:44px; }
   :focus-visible{ outline:3px solid #fbbf24; outline-offset:2px; }
   h2[tabindex="-1"]:focus{ outline:none; }
@@ -119,6 +119,19 @@
   .prompt .plateScale{ display:block; margin-top:.35rem; font-size:16px; font-weight:700; color:var(--text); line-height:1.45; }
   .mealList{ width:100%; display:flex; flex-direction:column; gap:.35rem; }
   .mealItem{ background:#f1f5f9; border-radius:.85rem; padding:.55rem .75rem; font-size:16px; display:flex; justify-content:space-between; gap:.6rem; }
+  .card.revealed.has-meal{ overflow:hidden; }
+  .card.revealed.has-meal .content{ flex:1 1 auto; min-height:0; overflow:hidden; width:100%; }
+  .card.revealed.has-meal .name,
+  .card.revealed.has-meal .verdict{ flex:0 0 auto; }
+  .card.revealed.has-meal .photoWrap{ flex:0 1 auto; }
+  .card.revealed.has-meal .mealList{ flex:1 1 auto; min-height:5.5rem; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .mealScrollCue{
+    position:sticky; bottom:0; z-index:1;
+    margin:0 -.15rem -.1rem; padding:.35rem .4rem .2rem;
+    text-align:center; font-size:14px; font-weight:800; color:#0f172a;
+    background:linear-gradient(transparent, #fff 45%);
+    pointer-events:none;
+  }
   .tag{ font-size:14px; font-weight:800; padding:.15rem .45rem; border-radius:999px; }
   .tag.high{ background:var(--highBg); color:var(--high); } .tag.mod{ background:var(--modBg); color:var(--mod); } .tag.low{ background:var(--lowBg); color:var(--low); }
   .compare{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; width:100%; }
@@ -157,8 +170,12 @@
 
   .toast{ background:rgba(2,6,23,.85); border:2px solid rgba(203,213,225,.3); padding:.75rem .85rem; border-radius:1.1rem; font-size:16px; line-height:1.4; flex:none; }
   .toast.good{ border-color:#22c55e; } .toast.bad{ border-color:#f87171; }
+  .toast-body{ flex:1 1 auto; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; }
   .toast .coach{ margin-top:.35rem; color:var(--ink2); font-size:16px; }
-  .toast .row{ display:flex; gap:.6rem; align-items:center; justify-content:space-between; margin-top:.6rem; flex-wrap:wrap; }
+  .toast .row{ display:flex; gap:.6rem; align-items:center; justify-content:space-between; margin-top:.45rem; flex-wrap:wrap;
+    flex:0 0 auto; position:sticky; bottom:0; z-index:1;
+    padding-top:.45rem; background:rgba(2,6,23,.95); }
+  .toast.good .row{ background:rgba(2,6,23,.95); }
   .toast .tapnote{ font-size:14px; color:var(--ink2); }
   .nextBtn{ border:0; border-radius:999px; padding:.65rem 1.4rem; font-weight:900; font-size:16px; background:#f8fafc; color:#0b1220; min-height:44px; min-width:44px; }
   .footer{ font-size:18px; color:var(--ink2); text-align:center; line-height:1.4; flex:0 0 auto; flex-shrink:0; }
@@ -235,13 +252,24 @@
     .card.has-meal .photoWrap{ max-height:15vh; min-height:64px; }
     .opt .photoWrap{ max-height:12vh; min-height:60px; }
     .card.revealed .photoWrap{ max-height:13vh; min-height:52px; }
-    .card.revealed.has-meal .photoWrap{ max-height:10vh; min-height:48px; }
+    .card.revealed.has-meal .photoWrap{ max-height:8vh; min-height:44px; }
+    .card.revealed.has-meal .verdict{ padding:.35rem .6rem; font-size:16px; }
+    .card.revealed.has-meal .verdict small{ font-size:14px; margin-top:0; }
+    .card.revealed.has-meal .name{ font-size:1.05rem; }
+    .card.revealed.has-meal .mealItem{ padding:.4rem .65rem; }
+    .card.revealed.has-meal .mealList{ min-height:6.75rem; gap:.25rem; }
     .card.revealed .opt .photoWrap{ max-height:10vh; min-height:48px; }
     .card{ padding:.75rem .85rem .9rem; }
     .content{ gap:.3rem; }
     .name{ font-size:1.3rem; }
     .card.revealed .name{ font-size:1.15rem; }
     .toast{ padding:.55rem .75rem; }
+    #gameScreen .toast{ max-height:min(32dvh, 11.5rem); }
+  }
+  @media (max-height:700px){
+    .card.revealed.has-meal .photoWrap{ display:none; }
+    .card.revealed.has-meal .mealList{ min-height:5.75rem; }
+    #gameScreen .toast{ max-height:min(28dvh, 9.5rem); }
   }
   /* Phones: stacked compact scale boxes so every cutoff is readable.
      Two-column starts at the iPad breakpoint below. */
@@ -289,7 +317,7 @@
     #gameScreen .topBars{ grid-column:1 / -1; }
     #gameScreen .stack{ grid-column:1; grid-row:2 / 4; min-height:0; }
     #gameScreen .controls{ grid-column:2; grid-row:2; flex-direction:column; align-self:center; }
-    #gameScreen .toast{ grid-column:2; grid-row:3; align-self:end; max-height:40dvh; overflow:auto; }
+    #gameScreen .toast{ grid-column:2; grid-row:3; align-self:end; max-height:40dvh; overflow:hidden; display:flex; flex-direction:column; }
     #gameScreen .sr-only{ position:absolute; }
     .emojiTile{ width:7rem; height:7rem; font-size:3.6rem; }
     .photoWrap{ max-height:42vh; }
@@ -406,6 +434,8 @@
             </ul>
             <h3>Privacy</h3>
             <p>K Swipe collects no data. Your scores and settings stay on this device. <a class="privacyLink" href="privacy.html">Privacy policy</a></p>
+            <h3>Pictures and offline use</h3>
+            <p>Food pictures download to this device so the game works offline. On a phone, Wi-Fi is best the first time you open K Swipe, so the pictures can finish downloading in the background.</p>
           </div>
         </div>
       </div>
@@ -649,7 +679,7 @@ const CMP_IMG = {
   "cmp-drinks":["cola","coconut-water"],
   "cmp-grains":["white-rice","quinoa"],
   "cmp-snacks":["pretzels","chips"],
-  "cmp-grapes":["raisins","grapes"],
+  "cmp-grapes":["raisins-only","grapes"],
   "cmp-sauce":["tomato-sauce","garlic-olive-oil"],
   "cmp-milk":["milk","rice-milk"],
   "cmp-greens":["spinach-cooked","lettuce"],
@@ -934,9 +964,28 @@ function revealCard(c){
       el("small", { text: c.type === "meal" ? `About ${c.mg} ${mgUnit(true)} for the whole plate` : `${mgText(c.mg, true)} per ${c.serving}` }));
     card.querySelector(".prompt").replaceWith(v);
     card.querySelectorAll(".mealItem .tag").forEach(t => t.hidden = false);
-    // After a reveal, prefer keeping the verdict (and meal tags) in view on short screens.
-    requestAnimationFrame(() => { try{ v.scrollIntoView({ block:"nearest", inline:"nearest" }); }catch(e){} });
+    requestAnimationFrame(() => {
+      if (c.type === "meal"){
+        const list = card.querySelector(".mealList");
+        updateMealScrollCue(list);
+      } else {
+        try{ v.scrollIntoView({ block:"nearest", inline:"nearest" }); }catch(e){}
+      }
+    });
   }
+}
+function updateMealScrollCue(list){
+  if (!list) return;
+  let cue = list.querySelector(".mealScrollCue");
+  const overflow = list.scrollHeight > list.clientHeight + 4;
+  if (!overflow){ if (cue) cue.remove(); return; }
+  if (!cue){
+    cue = el("div", { class:"mealScrollCue", text:"More ↓" });
+    list.append(cue);
+    list.addEventListener("scroll", () => updateMealScrollCue(list), { passive:true });
+  }
+  const atBottom = list.scrollTop + list.clientHeight >= list.scrollHeight - 10;
+  cue.hidden = atBottom;
 }
 
 function showFeedback(c, ok){
@@ -946,13 +995,20 @@ function showFeedback(c, ok){
   const right = c.type === "compare" ? `${c.lower.toUpperCase()} (${c[c.lower].name}) is lower.` : `It's ${CAT_LABEL[c.cat].toLowerCase()}.`;
   const next = el("button", { class:"nextBtn", id:"nextCardBtn", text: idx + 1 >= round.length ? "See results" : "Next ➜",
                               onclick:(e)=>{ e.stopPropagation(); nextCard(); } });
-  toastEl.replaceChildren(
+  const coach = el("div", { class:"coach", text: ok ? funCorrectLine(c) : funWrongLine() });
+  const body = el("div", { class:"toast-body" },
     el("div", {}, el("b", { text: ok ? "✅ Correct! " : "❌ Not quite. " }), right),
     el("div", { style:"margin-top:.3rem", text:c.teach }),
-    el("div", { class:"coach", text: ok ? funCorrectLine(c) : funWrongLine() }),
+    coach);
+  toastEl.replaceChildren(
+    body,
     el("div", { class:"row" }, el("span", { class:"tapnote", text:"Tap anywhere on the card to continue" }), next));
   liveEl.textContent = (ok ? "Correct. " : "Not quite. ") + right + " " + c.teach;
-  next.focus({ preventScroll:true });
+  requestAnimationFrame(() => {
+    const tight = window.innerHeight <= 700 || body.scrollHeight > body.clientHeight + 4;
+    if (tight && coach.parentNode) coach.remove();
+    next.focus({ preventScroll:true });
+  });
 }
 
 function dismissToast(){
@@ -976,8 +1032,10 @@ function nextCard(){
 function funCorrectLine(c){
   const lines = ["Nice call. You spotted the potassium trap. 👀","Most people miss the sides and sauces. You didn't. 👏","Nice choice!","You're learning the patterns, not memorizing trivia. 📊"];
   if (c && c.type === "meal") lines.push("That's exactly how meals should be judged. 🧠");
-  if (streak >= 3) lines.push("🔥 Streak alert. You're reading meals like a pro.");
-  if (streak >= 5) lines.push("😎 At this point, potassium is the one getting nervous.");
+  if (window.innerHeight > 700){
+    if (streak >= 3) lines.push("🔥 Streak alert. You're reading meals like a pro.");
+    if (streak >= 5) lines.push("😎 At this point, potassium is the one getting nervous.");
+  }
   return pickOne(lines);
 }
 function funWrongLine(){
@@ -1032,6 +1090,7 @@ function openModal(...kids){
   document.addEventListener("keydown", modalKeyHandler, true);
 }
 function endOfLevel(){
+  startImageBackfill();
   const passed = correct >= PASS_SCORE;
   save.stats.levelsPlayed++;
   if (passed){ save.stats.levelsPassed++; save.unlocked = Math.max(save.unlocked, Math.min(level + 1, MAX_LEVEL)); }
@@ -1070,6 +1129,7 @@ function showWinScreen(){
       el("button", { class:"bigBtn secondary", id:"closeBtn", text:"Back to start", onclick:() => show("startScreen") })));
 }
 function endOfDaily(){
+  startImageBackfill();
   const today = todayStr(), d = save.daily, first = d.last !== today;
   if (first){
     const y = new Date(); y.setDate(y.getDate() - 1);
@@ -1100,6 +1160,7 @@ function startPractice(){
   beginRound("Practice the ones you missed");
 }
 function endOfPractice(){
+  startImageBackfill();
   const left = (save.misses || []).length;
   openModal(
     el("h2", { id:"modalTitle", text:"Practice complete" }),
@@ -1219,8 +1280,26 @@ show("startScreen");
 $("startPanel") && $("startPanel").addEventListener("scroll", updateStartScrollCue, { passive:true });
 window.addEventListener("resize", updateStartScrollCue);
 
+function startImageBackfill(){
+  if (startImageBackfill.started) return;
+  if (!("serviceWorker" in navigator)) return;
+  const post = () => {
+    const ctl = navigator.serviceWorker.controller;
+    if (!ctl) return false;
+    startImageBackfill.started = true;
+    ctl.postMessage({ type:"backfill-images" });
+    return true;
+  };
+  if (post()) return;
+  navigator.serviceWorker.addEventListener("controllerchange", () => { post(); }, { once:true });
+}
+
 if ("serviceWorker" in navigator && location.protocol !== "file:"){
-  window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+    const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 2500));
+    idle(() => startImageBackfill(), { timeout:8000 });
+  });
 }
 </script>
 </body>
