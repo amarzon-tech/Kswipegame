@@ -8,7 +8,7 @@ For Dr D's review on the `pics` branch. This branch is not merged to main, and t
 - 123 original AI-generated photographs are bundled locally as WebP (each 40 KB or less) so the app still works offline.
 - Images are lazy-loaded, have alt text, and fall back to the existing emoji if a file is missing.
 - Photos shrink after you answer so the verdict, plate list, and feedback still fit, including on an iPhone SE and in iPad landscape.
-- The service worker cache is now `k-swipe-v1.2.2`. The app shell is precached; food photographs are cached on first view and quietly backfilled after idle or the first finished round (so the first visit stays light, and offline play still works once pictures have downloaded).
+- The service worker cache is now `k-swipe-v1.2.3`. The app shell is precached; food photographs are cached on first view and quietly backfilled after idle or the first finished round (so the first visit stays light, and offline play still works once pictures have downloaded).
 - The main start button (new players, Level 1) now says "Let's play! 🍌" instead of "Start Level 1". After Level 1 is unlocked, it still says "Continue: Level …".
 - The Pasta (plain) photograph was regenerated so it shows a modest half-cup of plain drained pasta with no sauce. Other pasta, noodle, and rice cards whose text has no sauce were checked; only this photo needed a change.
 
@@ -25,3 +25,7 @@ See `CREDITS.md` for the full image list.
 - Revealed plate cards shrink the meal photo on short screens and let the ingredient list scroll, with a "More ↓" cue, so every row is reachable on iPhone SE and iPhone 13.
 - Photos regenerated at the stated serving: peanut butter (2 tbsp dollop), banana (one fruit, one stem), quinoa (½ cup), salt substitute (¼ tsp). The "Raisins" compare option now uses a raisins-only picture; the mixed bowl stays on the Raisins & dried fruit card.
 - Eight meal photographs that were just over 40 KB were recompressed to under 40,000 bytes. About includes a short note that pictures download for offline use (Wi-Fi is best on the first visit).
+
+## v1.2.3 (draft)
+
+- Low-sodium vegetable juice potassium updated to 850 mg per 1 cup, to match the Campbell's Low Sodium V8 label (850 mg potassium per 8 fl oz). The compare-card low-sodium side uses the same 850 mg value. Regular vegetable juice (470 mg) remains the lower of the two. Rating and teaching text are unchanged.
