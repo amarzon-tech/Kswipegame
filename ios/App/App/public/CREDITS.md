@@ -17,7 +17,7 @@ Generic, unbranded packaging is used where a can, bottle, or shaker helps identi
 | `images/food-avocado.webp` | Avocado | Original AI-generated | Original work |
 | `images/food-bagel.webp` | Plain bagel | Original AI-generated | Original work |
 | `images/food-baked-potato.webp` | Baked potato (with skin) | Original AI-generated | Original work |
-| `images/food-banana.webp` | Banana | Original AI-generated | Original work |
+| `images/food-banana.webp` | Banana, one medium with a single stem | Original AI-generated | Original work |
 | `images/food-beans.webp` | Kidney beans, cooked | Original AI-generated | Original work |
 | `images/food-beer.webp` | Beer | Original AI-generated | Original work |
 | `images/food-beets.webp` | Beets, cooked | Original AI-generated | Original work |
@@ -77,7 +77,7 @@ Generic, unbranded packaging is used where a can, bottle, or shaker helps identi
 | `images/food-orange.webp` | Orange | Original AI-generated | Original work |
 | `images/food-ors.webp` | Oral rehydration drink (Pedialyte-type) | Original AI-generated | Original work |
 | `images/food-pasta.webp` | Pasta (plain) | Original AI-generated | Original work |
-| `images/food-peanut-butter.webp` | Peanut butter | Original AI-generated | Original work |
+| `images/food-peanut-butter.webp` | Peanut butter, 2-tablespoon dollop | Original AI-generated | Original work |
 | `images/food-pear.webp` | Pear | Original AI-generated | Original work |
 | `images/food-pineapple.webp` | Pineapple | Original AI-generated | Original work |
 | `images/food-pistachios.webp` | Pistachios | Original AI-generated | Original work |
@@ -85,14 +85,15 @@ Generic, unbranded packaging is used where a can, bottle, or shaker helps identi
 | `images/food-popcorn.webp` | Popcorn | Original AI-generated | Original work |
 | `images/food-pretzels.webp` | Pretzels | Original AI-generated | Original work |
 | `images/food-prune-juice.webp` | Prune juice | Original AI-generated | Original work |
-| `images/food-quinoa.webp` | Quinoa | Original AI-generated | Original work |
+| `images/food-quinoa.webp` | Quinoa, ½ cup cooked | Original AI-generated | Original work |
 | `images/food-raisin-bran.webp` | Raisin bran cereal | Original AI-generated | Original work |
 | `images/food-raisins.webp` | Raisins & dried fruit | Original AI-generated | Original work |
+| `images/food-raisins-only.webp` | Raisins only (¼ cup), for the grapes compare card | Original AI-generated | Original work |
 | `images/food-regular-salt.webp` | Regular salt (compare card) | Original AI-generated | Original work |
 | `images/food-rice-milk.webp` | Rice milk (unfortified) | Original AI-generated | Original work |
 | `images/food-salmon.webp` | Salmon, cooked | Original AI-generated | Original work |
 | `images/food-salsa.webp` | Salsa | Original AI-generated | Original work |
-| `images/food-salt-substitute.webp` | Salt substitute (NoSalt, Nu-Salt) | Original AI-generated | Original work |
+| `images/food-salt-substitute.webp` | Salt substitute, ¼ teaspoon, unbranded | Original AI-generated | Original work |
 | `images/food-spinach-cooked.webp` | Spinach, cooked | Original AI-generated | Original work |
 | `images/food-spinach-raw.webp` | Spinach, raw | Original AI-generated | Original work |
 | `images/food-sports-drink.webp` | Sports drink (Gatorade-type) | Original AI-generated | Original work |

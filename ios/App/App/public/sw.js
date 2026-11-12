@@ -1,9 +1,11 @@
 /* K Swipe service worker: precache the app shell so it works offline.
-   Bump CACHE_VERSION whenever any cached file changes.
+   Food photographs are cached on first view, then quietly backfilled in the
+   background after idle or the first finished round. Bump CACHE_VERSION
+   whenever any cached file changes.
    Fetch strategy: stale-while-revalidate — serve the cached copy immediately,
    then update the cache from the network for the next visit. If the network
    is down, the cached copy (or the precached index.html for navigations) is used. */
-const CACHE_VERSION = "k-swipe-v1.2.1";
+const CACHE_VERSION = "k-swipe-v1.2.2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -13,7 +15,9 @@ const ASSETS = [
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/apple-touch-icon.png",
-  "./CREDITS.md",
+  "./CREDITS.md"
+];
+const IMAGES = [
   "./images/food-almonds.webp",
   "./images/food-apple.webp",
   "./images/food-artichoke.webp",
@@ -91,6 +95,7 @@ const ASSETS = [
   "./images/food-prune-juice.webp",
   "./images/food-quinoa.webp",
   "./images/food-raisin-bran.webp",
+  "./images/food-raisins-only.webp",
   "./images/food-raisins.webp",
   "./images/food-regular-salt.webp",
   "./images/food-rice-milk.webp",
@@ -175,4 +180,23 @@ self.addEventListener("fetch", (event) => {
     }
     return Response.error();
   })());
+});
+
+async function backfillImages(){
+  const cache = await caches.open(CACHE_VERSION);
+  for (const url of IMAGES){
+    try {
+      const hit = await cache.match(url, { ignoreSearch: true });
+      if (hit) continue;
+      const res = await fetch(url);
+      if (res && res.ok) await cache.put(url, res);
+    } catch (e) {}
+    await new Promise((r) => setTimeout(r, 80));
+  }
+}
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "backfill-images"){
+    event.waitUntil(backfillImages());
+  }
 });
