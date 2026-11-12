@@ -60,7 +60,7 @@
   #gameScreen{ overflow:hidden; }
   #gameScreen .topBars, #gameScreen .controls{ flex:0 0 auto; }
   #gameScreen .stack{ flex:1 1 0; min-height:0; }
-  #gameScreen .toast{ flex:0 1 auto; min-height:0; max-height:min(38dvh, 13.5rem); overflow:hidden; display:flex; flex-direction:column; }
+  #gameScreen .toast{ flex:0 1 auto; min-height:0; max-height:min(42dvh, 15.5rem); overflow:hidden; display:flex; flex-direction:column; }
   .screen > .bigBtn{ flex:0 0 auto; min-height:44px; }
   :focus-visible{ outline:3px solid #fbbf24; outline-offset:2px; }
   h2[tabindex="-1"]:focus{ outline:none; }
@@ -170,7 +170,14 @@
 
   .toast{ background:rgba(2,6,23,.85); border:2px solid rgba(203,213,225,.3); padding:.75rem .85rem; border-radius:1.1rem; font-size:16px; line-height:1.4; flex:none; }
   .toast.good{ border-color:#22c55e; } .toast.bad{ border-color:#f87171; }
-  .toast-body{ flex:1 1 auto; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .toast-body{ flex:1 1 auto; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; position:relative; }
+  .toastScrollCue{
+    position:sticky; bottom:0; z-index:1;
+    margin:0 -.15rem; padding:.3rem .4rem .15rem;
+    text-align:center; font-size:14px; font-weight:800; color:#fff;
+    background:linear-gradient(transparent, rgba(2,6,23,.96) 45%);
+    pointer-events:none;
+  }
   .toast .coach{ margin-top:.35rem; color:var(--ink2); font-size:16px; }
   .toast .row{ display:flex; gap:.6rem; align-items:center; justify-content:space-between; margin-top:.45rem; flex-wrap:wrap;
     flex:0 0 auto; position:sticky; bottom:0; z-index:1;
@@ -264,12 +271,12 @@
     .name{ font-size:1.3rem; }
     .card.revealed .name{ font-size:1.15rem; }
     .toast{ padding:.55rem .75rem; }
-    #gameScreen .toast{ max-height:min(32dvh, 11.5rem); }
+    #gameScreen .toast{ max-height:min(36dvh, 13.5rem); }
   }
   @media (max-height:700px){
     .card.revealed.has-meal .photoWrap{ display:none; }
     .card.revealed.has-meal .mealList{ min-height:5.75rem; }
-    #gameScreen .toast{ max-height:min(28dvh, 9.5rem); }
+    #gameScreen .toast{ max-height:min(34dvh, 12rem); }
   }
   /* Phones: stacked compact scale boxes so every cutoff is readable.
      Two-column starts at the iPad breakpoint below. */
@@ -1005,10 +1012,22 @@ function showFeedback(c, ok){
     el("div", { class:"row" }, el("span", { class:"tapnote", text:"Tap anywhere on the card to continue" }), next));
   liveEl.textContent = (ok ? "Correct. " : "Not quite. ") + right + " " + c.teach;
   requestAnimationFrame(() => {
-    const tight = window.innerHeight <= 700 || body.scrollHeight > body.clientHeight + 4;
-    if (tight && coach.parentNode) coach.remove();
+    updateToastScrollCue(body);
     next.focus({ preventScroll:true });
   });
+}
+function updateToastScrollCue(body){
+  if (!body) return;
+  let cue = body.querySelector(".toastScrollCue");
+  const overflow = body.scrollHeight > body.clientHeight + 4;
+  if (!overflow){ if (cue) cue.remove(); return; }
+  if (!cue){
+    cue = el("div", { class:"toastScrollCue", text:"More ↓" });
+    body.append(cue);
+    body.addEventListener("scroll", () => updateToastScrollCue(body), { passive:true });
+  }
+  const atBottom = body.scrollTop + body.clientHeight >= body.scrollHeight - 10;
+  cue.hidden = atBottom;
 }
 
 function dismissToast(){
@@ -1280,19 +1299,39 @@ show("startScreen");
 $("startPanel") && $("startPanel").addEventListener("scroll", updateStartScrollCue, { passive:true });
 window.addEventListener("resize", updateStartScrollCue);
 
+const IMAGE_BACKFILL_TOTAL = 124;
+async function cachedImageCount(){
+  if (!("caches" in window)) return 0;
+  try {
+    const keys = await caches.keys();
+    let n = 0;
+    for (const k of keys){
+      const cache = await caches.open(k);
+      const reqs = await cache.keys();
+      n += reqs.filter(r => /\/images\/[^?]+\.webp$/i.test(new URL(r.url).pathname)).length;
+    }
+    return n;
+  } catch (e){ return 0; }
+}
 function startImageBackfill(){
-  if (startImageBackfill.started) return;
   if (!("serviceWorker" in navigator)) return;
   const post = () => {
     const ctl = navigator.serviceWorker.controller;
     if (!ctl) return false;
-    startImageBackfill.started = true;
     ctl.postMessage({ type:"backfill-images" });
     return true;
   };
-  if (post()) return;
-  navigator.serviceWorker.addEventListener("controllerchange", () => { post(); }, { once:true });
+  const run = async () => {
+    let n = 0;
+    try { n = await cachedImageCount(); } catch (e){}
+    if (n >= IMAGE_BACKFILL_TOTAL) return;
+    if (!post()){
+      navigator.serviceWorker.addEventListener("controllerchange", () => startImageBackfill(), { once:true });
+    }
+  };
+  run();
 }
+window.addEventListener("online", () => startImageBackfill());
 
 if ("serviceWorker" in navigator && location.protocol !== "file:"){
   window.addEventListener("load", () => {
