@@ -2,7 +2,7 @@
 
 For Dr D's sign-off. No potassium values, food categories, serving sizes, or teaching explanations were changed, except the wording items listed here. Medical disclaimer body text is unchanged. This branch is `v1.1-fixes` only — not merged to main, and the live GitHub Pages site is untouched.
 
-**Support email is a placeholder.** `SUPPORT_EMAIL` is set to `adamodar@ckdva.com` pending your confirmation. Please say if a different address should be used.
+**Support email:** `amardamodar@gmail.com` (confirmed by Dr D).
 
 ## Wording changes
 
@@ -36,7 +36,7 @@ For Dr D's sign-off. No potassium values, food categories, serving sizes, or tea
 
 ### Privacy page
 - Offline sentence is now: **After you install the app, it works offline and does not send data over the internet.** (was: "The game works offline and does not send anything over the internet.")
-- Contact is a tappable email link to `adamodar@ckdva.com` (via the `SUPPORT_EMAIL` constant). The previous plain-text GitHub issue address is removed; no GitHub URL is shown to players.
+- Contact is a tappable email link to `amardamodar@gmail.com` (via the `SUPPORT_EMAIL` constant). The previous plain-text GitHub issue address is removed; no GitHub URL is shown to players.
 - "What stays on your device" now also mentions the **practice list**.
 - "Last updated" is November 12, 2026.
 - **Back to the game** is a large button at the top of the page, so it is visible without scrolling.
