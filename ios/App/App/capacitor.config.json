@@ -1,0 +1,8 @@
+{
+	"appId": "com.drd.kswipe",
+	"appName": "K Swipe",
+	"webDir": "www",
+	"packageClassList": [
+		"HapticsPlugin"
+	]
+}

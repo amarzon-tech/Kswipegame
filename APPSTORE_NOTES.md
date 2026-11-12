@@ -41,3 +41,10 @@ npx cap open ios        # opens Xcode: set Team, bundle id, version, then Produc
 - [ ] Apple Developer Program enrollment active
 - [ ] TestFlight build tested on a real iPhone (swipe, haptics, VoiceOver, Dynamic Type/zoom)
 - [ ] Description, keywords, support URL, privacy URL, screenshots
+
+## 7. iOS 1.1 wrapper (branch `ios-1.1`)
+- Marketing version **1.1**, build number **2** (1.0 shipped as build 1.0 (1)).
+- Devices: iPhone (portrait only) and iPad (all four orientations, required for iPad multitasking).
+- Web assets in `ios/App/App/public/` are synced from the 1.1 site (`index.html`, `privacy.html`, `manifest.json`, `sw.js`, `icons`). Safe-area CSS (`viewport-fit=cover` and `env(safe-area-inset-*)`) is unchanged.
+- After any web change: `npm run ios:sync` (restores the vendored Haptics SPM path after Capacitor rewrites it).
+- This box cannot archive or upload. On the Mac: open `ios/App/App.xcodeproj`, choose the Team, pick **Any iOS Device (arm64)**, then **Product > Archive**, **Distribute App > App Store Connect > Upload**. Then in App Store Connect create version 1.1, select build 1.1 (2), and submit. Do not merge this branch until Dr D says so.

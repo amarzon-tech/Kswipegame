@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<title>K Swipe: Privacy Policy</title>
+<style>
+  *{ box-sizing:border-box; }
+  html, body{ height:100%; }
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    background:#0b1220; color:#f1f5f9; line-height:1.55; font-size:16px;
+    display:flex; flex-direction:column;
+    padding-top:env(safe-area-inset-top, 0px);
+    padding-right:env(safe-area-inset-right, 0px);
+    padding-bottom:env(safe-area-inset-bottom, 0px);
+    padding-left:env(safe-area-inset-left, 0px);
+    height:100dvh; height:100svh; overflow:hidden;
+  }
+  .top{
+    flex:none;
+    padding:.75rem 1rem;
+    display:flex; align-items:center;
+  }
+  a.back{
+    display:inline-flex; align-items:center; justify-content:center;
+    min-height:44px; min-width:44px; padding:.5rem 1rem;
+    color:#0b1220; font-weight:800; font-size:16px; text-decoration:none;
+    background:linear-gradient(135deg,#60a5fa,#a78bfa);
+    border-radius:999px;
+  }
+  main{ flex:1; min-height:0; overflow-y:auto; max-width:40rem; margin:0 auto; padding:0 1rem 2rem; width:100%; }
+  h1{ font-size:1.5rem; margin:.4rem 0; } h2{ font-size:1.15rem; margin-top:1.5rem; }
+  p, li{ color:#dbe4f5; font-size:16px; }
+  .disclaimer{ font-size:18px; }
+  a{ color:#bfdbfe; }
+  a.mail{ display:inline-flex; align-items:center; min-height:44px; font-weight:700; }
+</style>
+</head>
+<body>
+  <div class="top">
+    <a class="back" href="index.html">Back to the game</a>
+  </div>
+  <main>
+    <h1>K Swipe Privacy Policy</h1>
+    <p>Last updated: November 12, 2026</p>
+    <h2>We collect no data</h2>
+    <p>K Swipe does not collect, store, share, or sell any personal information. There are no accounts, no ads, no analytics, and no tracking.</p>
+    <h2>What stays on your device</h2>
+    <p>Your game progress, best scores, daily streak, practice list, and sound/haptics settings are saved only in your device's local storage so the game can remember them. This information never leaves your device. You can erase it with "Reset progress &amp; stats" on the Stats screen, or by deleting the app.</p>
+    <h2>No network use</h2>
+    <p>After you install the app, it works offline and does not send data over the internet.</p>
+    <h2>Medical disclaimer</h2>
+    <p class="disclaimer">K Swipe is for education only and is not medical advice. Talk to your care team about your own potassium needs.</p>
+    <h2>Contact</h2>
+    <p>Questions: email <a class="mail" id="supportLink" href="mailto:amardamodar@gmail.com">amardamodar@gmail.com</a>.</p>
+  </main>
+<script>
+  const SUPPORT_EMAIL = "amardamodar@gmail.com"; // confirmed by Dr D
+  const a = document.getElementById("supportLink");
+  a.href = "mailto:" + SUPPORT_EMAIL;
+  a.textContent = SUPPORT_EMAIL;
+</script>
+</body>
+</html>

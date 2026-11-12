@@ -1,0 +1,14 @@
+App/build
+App/Pods
+App/output
+# public is committed so the Xcode project can be archived without a prior cap sync
+# App/App/public
+DerivedData
+xcuserdata
+
+# Cordova plugins for Capacitor
+capacitor-cordova-ios-plugins
+
+# Generated Config files are committed for a complete Xcode project
+# App/App/capacitor.config.json
+# App/App/config.xml
