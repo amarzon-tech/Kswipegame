@@ -165,7 +165,7 @@ Note: ingredient labels on plates now describe the item *as portioned on that pl
 ## "Which is lower?" comparison cards (all new)
 | # | Level | A | B | Lower | Teaching text |
 |---|---|---|---|---|---|
-| 1 | 4 | Baked potato, 1 medium (~900 mg) | Leached potato, ½ cup, boiled & drained (~160 mg) | B | Leaching (peel, dice, boil in lots of water, drain) plus a smaller portion makes a big difference. |
+| 1 | 4 | Baked potato, 1 medium (~900 mg) | Potato, boiled and drained, ½ cup, boiled & drained (~160 mg) | B | Leaching (peel, dice, boil in lots of water, drain) plus a smaller portion makes a big difference. |
 | 2 | 4 | Apple slices, ½ cup (~60 mg) | Banana, 1 medium (~420 mg) | A | The apple is far lower. |
 | 3 | 4 | Orange juice, 1 cup (~495 mg) | Cranberry juice cocktail, 1 cup (~45 mg) | B | Cranberry juice cocktail is low; orange juice is high. |
 | 4 | 5 | Regular salt, ¼ tsp (~0 mg) | Salt substitute, ¼ tsp (~650 mg) | A | Salt substitutes swap sodium for potassium chloride, which can be dangerous in kidney disease. (Regular salt has its own limits.) |
