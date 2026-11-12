@@ -8,7 +8,9 @@ For Dr D's review on the `pics` branch. This branch is not merged to main, and t
 - 123 original AI-generated photographs are bundled locally as WebP (each 40 KB or less) so the app still works offline.
 - Images are lazy-loaded, have alt text, and fall back to the existing emoji if a file is missing.
 - Photos shrink after you answer so the verdict, plate list, and feedback still fit, including on an iPhone SE and in iPad landscape.
-- The service worker cache is now `k-swipe-v1.2.0` and precaches every image plus `CREDITS.md`.
+- The service worker cache is now `k-swipe-v1.2.1` and precaches every image plus `CREDITS.md`.
+- The main start button (new players, Level 1) now says "Let's play! 🍌" instead of "Start Level 1". After Level 1 is unlocked, it still says "Continue: Level …".
+- The Pasta (plain) photograph was regenerated so it shows a modest half-cup of plain drained pasta with no sauce. Other pasta, noodle, and rice cards whose text has no sauce were checked; only this photo needed a change.
 
 ## What did not change
 

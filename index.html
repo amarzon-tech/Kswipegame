@@ -341,7 +341,7 @@
         <div class="scrollCue" id="startScrollCue" hidden>More ↓</div>
       </div>
       <div class="btnCol">
-        <button class="bigBtn" id="continueBtn">Start Level 1</button>
+        <button class="bigBtn" id="continueBtn">Let's play! 🍌</button>
         <div class="btnRow startActions">
           <button class="bigBtn secondary" id="dailyBtn">📅 Daily Challenge</button>
           <button class="bigBtn secondary" id="statsBtn">📊 Stats</button>
@@ -757,7 +757,7 @@ function updateStartScrollCue(){
 function refreshStart(){
   const u = Math.min(save.unlocked, MAX_LEVEL);
   applyLevelTheme(u);
-  $("continueBtn").textContent = u > 1 ? `Continue: Level ${u} · ${LEVELS[u-1].theme}` : "Start Level 1";
+  $("continueBtn").textContent = u > 1 ? `Continue: Level ${u} · ${LEVELS[u-1].theme}` : "Let's play! 🍌";
   $("newJourneyBtn").hidden = u <= 1;
   const done = save.daily.last === todayStr();
   $("dailyBtn").textContent = done ? `📅 Daily done today (${save.daily.lastScore}/10) · 🔥 ${save.daily.streak}`
