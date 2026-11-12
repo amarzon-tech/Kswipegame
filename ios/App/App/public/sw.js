@@ -3,12 +3,13 @@
    Fetch strategy: stale-while-revalidate — serve the cached copy immediately,
    then update the cache from the network for the next visit. If the network
    is down, the cached copy (or the precached index.html for navigations) is used. */
-const CACHE_VERSION = "k-swipe-v1.1.0";
+const CACHE_VERSION = "k-swipe-v1.1.1";
 const ASSETS = [
   "./",
   "./index.html",
   "./privacy.html",
   "./manifest.json",
+  "./favicon.ico",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/apple-touch-icon.png"
